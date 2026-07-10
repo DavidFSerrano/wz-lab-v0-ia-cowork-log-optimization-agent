@@ -135,7 +135,7 @@ export function Chat() {
 
       {/* Body */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
-        <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 px-4 py-6">
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4 py-6">
           {!incident ? (
             <IncidentDashboard onSelect={openIncident} />
           ) : isEmpty ? (
@@ -209,7 +209,7 @@ export function Chat() {
               e.preventDefault()
               submit()
             }}
-            className="mx-auto flex w-full max-w-2xl items-end gap-2 rounded-2xl border border-border bg-surface p-2 transition-shadow focus-within:border-accent focus-within:shadow-[0_0_18px_-4px_theme(colors.accent)]"
+            className="mx-auto flex w-full max-w-5xl items-end gap-2 rounded-2xl border border-border bg-surface p-2 transition-shadow focus-within:border-accent focus-within:shadow-[0_0_18px_-4px_theme(colors.accent)]"
           >
             <textarea
               ref={textareaRef}
@@ -243,7 +243,7 @@ export function Chat() {
               </button>
             )}
           </form>
-          <p className="mx-auto mt-2 max-w-2xl text-center text-xs text-muted">
+          <p className="mx-auto mt-2 max-w-5xl text-center text-xs text-muted">
             Press Enter to send, Shift + Enter for a new line.
           </p>
         </div>

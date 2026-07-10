@@ -376,8 +376,8 @@ export function ArchitectureView() {
         <AppNav />
       </header>
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto flex w-full max-w-5xl flex-col gap-14 px-4 py-10">
+        <div className="flex-1 overflow-y-auto">
+          <div className="mx-auto flex w-full max-w-5xl flex-col gap-14 px-4 py-6">
           {/* Intro */}
           <div className="flex flex-col gap-3">
             <span className="font-mono text-xs uppercase tracking-[0.3em] text-secondary text-glow-secondary">

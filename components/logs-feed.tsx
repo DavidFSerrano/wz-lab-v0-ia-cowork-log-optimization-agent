@@ -119,7 +119,7 @@ export function LogsFeed() {
       </header>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto w-full max-w-2xl px-4 py-6">
+        <div className="mx-auto w-full max-w-5xl px-4 py-6">
           <div className="mb-4 flex items-center justify-between">
             <p className="text-sm text-muted">
               {logs.length > 0 ? `Showing ${logs.length} most recent chunks` : "Waiting for logs…"}

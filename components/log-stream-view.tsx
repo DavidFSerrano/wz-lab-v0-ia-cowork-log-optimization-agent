@@ -267,7 +267,8 @@ export function LogStreamView() {
         </div>
       </header>
 
-      <main className="flex flex-1 flex-col gap-4 p-6">
+      <main className="flex flex-1 flex-col overflow-y-auto">
+        <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-4 px-4 py-6">
         {/* ── Metrics bar ── */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <MetricCard label="Session Lines" value={sessionLines} accent />
@@ -387,6 +388,7 @@ export function LogStreamView() {
             </ol>
           </div>
         </details>
+        </div>
       </main>
     </div>
   )

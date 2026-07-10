@@ -8,8 +8,7 @@ function textFromMessage(message: UIMessage): string {
 }
 
 const TOOL_LABELS: Record<string, string> = {
-  "tool-listLogFiles": "Listing available logs…",
-  "tool-readLogFile": "Reading log file…",
+  "tool-searchLogs": "Searching the log vector store…",
 }
 
 function toolActivity(message: UIMessage): string | null {
@@ -23,24 +22,36 @@ function toolActivity(message: UIMessage): string | null {
   return active ? TOOL_LABELS[active.type] ?? "Inspecting logs…" : null
 }
 
-// Collect the log files the assistant actually read, in order, de-duplicated.
-function inspectedLogs(message: UIMessage): string[] {
-  const files: string[] = []
-  for (const part of message.parts) {
-    if (
-      part.type === "tool-readLogFile" &&
-      "input" in part &&
-      part.input &&
-      typeof (part.input as { fileName?: unknown }).fileName === "string"
-    ) {
-      const name = (part.input as { fileName: string }).fileName
-      if (!files.includes(name)) files.push(name)
-    }
-  }
-  return files
+const SOURCE_LABELS: Record<string, string> = {
+  k8s: "Kubernetes",
+  aws: "AWS",
+  web: "Web",
 }
 
-function FileIcon() {
+type RetrievalEvidence = { chunks: number; sources: string[] }
+
+// Summarize what the assistant retrieved from the vector store: how many
+// chunks and from which source systems.
+function retrievalEvidence(message: UIMessage): RetrievalEvidence {
+  let chunks = 0
+  const sources = new Set<string>()
+  for (const part of message.parts) {
+    if (part.type === "tool-searchLogs" && "output" in part && part.output) {
+      const output = part.output as {
+        results?: { source?: string }[]
+      }
+      if (Array.isArray(output.results)) {
+        chunks += output.results.length
+        for (const r of output.results) {
+          if (r.source) sources.add(r.source)
+        }
+      }
+    }
+  }
+  return { chunks, sources: [...sources] }
+}
+
+function DatabaseIcon() {
   return (
     <svg
       width="12"
@@ -53,24 +64,27 @@ function FileIcon() {
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-      <path d="M14 2v6h6" />
+      <ellipse cx="12" cy="5" rx="9" ry="3" />
+      <path d="M3 5V19A9 3 0 0 0 21 19V5" />
+      <path d="M3 12A9 3 0 0 0 21 12" />
     </svg>
   )
 }
 
-function EvidenceTrail({ files }: { files: string[] }) {
-  if (files.length === 0) return null
+function EvidenceTrail({ evidence }: { evidence: RetrievalEvidence }) {
+  if (evidence.chunks === 0) return null
   return (
     <div className="mb-2 flex flex-wrap items-center gap-1.5">
-      <span className="text-xs text-muted">Evidence from</span>
-      {files.map((file) => (
+      <span className="inline-flex items-center gap-1 rounded-md border border-border bg-surface px-1.5 py-0.5 text-xs text-muted">
+        <DatabaseIcon />
+        Retrieved {evidence.chunks} log {evidence.chunks === 1 ? "chunk" : "chunks"} via RAG
+      </span>
+      {evidence.sources.map((s) => (
         <span
-          key={file}
-          className="inline-flex items-center gap-1 rounded-md border border-border bg-surface px-1.5 py-0.5 font-mono text-xs text-muted"
+          key={s}
+          className="rounded-md border border-border bg-surface px-1.5 py-0.5 font-mono text-xs text-muted"
         >
-          <FileIcon />
-          {file}
+          {SOURCE_LABELS[s] ?? s}
         </span>
       ))}
     </div>
@@ -81,7 +95,7 @@ export function ChatMessage({ message }: { message: UIMessage }) {
   const isUser = message.role === "user"
   const text = textFromMessage(message)
   const activity = toolActivity(message)
-  const logs = isUser ? [] : inspectedLogs(message)
+  const evidence = isUser ? { chunks: 0, sources: [] } : retrievalEvidence(message)
 
   if (isUser) {
     return (
@@ -102,7 +116,7 @@ export function ChatMessage({ message }: { message: UIMessage }) {
         AI
       </div>
       <div className="min-w-0 max-w-[80%]">
-        <EvidenceTrail files={logs} />
+        <EvidenceTrail evidence={evidence} />
         <div className="rounded-2xl rounded-bl-md bg-surface-2 px-4 py-3 text-foreground">
           {text ? (
             <Markdown content={text} />

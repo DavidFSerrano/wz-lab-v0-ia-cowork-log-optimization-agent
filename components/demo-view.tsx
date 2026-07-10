@@ -158,12 +158,13 @@ const SEV_DOT: Record<string, string> = {
 
 const STEPS = [
   { key: "raw", eyebrow: "The problem", title: "Raw logs across systems" },
-  { key: "ingest", eyebrow: "Write path", title: "Ingest, chunk & embed" },
+  { key: "optimize", eyebrow: "Pre-processing", title: "Optimize the raw logs" },
+  { key: "ingest", eyebrow: "Write path", title: "Chunk & embed" },
   { key: "detect", eyebrow: "Parallel", title: "Incident auto-detected" },
   { key: "investigate", eyebrow: "Read path", title: "Ask the agent" },
 ] as const
 
-const STEP_MS = [7000, 6000, 5000, 9000]
+const STEP_MS = [7000, 7000, 6000, 5000, 9000]
 
 export function DemoView() {
   const [step, setStep] = useState(0)
@@ -247,7 +248,7 @@ export function DemoView() {
           </div>
 
           {/* Stepper */}
-          <ol className="grid grid-cols-4 gap-2">
+          <ol className="grid grid-cols-2 gap-2 sm:grid-cols-5">
             {STEPS.map((s, i) => {
               const state = i < step ? "done" : i === step ? "active" : "todo"
               return (
@@ -292,9 +293,10 @@ export function DemoView() {
 
             <div className="mt-5">
               {step === 0 && <RawStep />}
-              {step === 1 && <IngestStep key={`ingest-${runKey}`} />}
-              {step === 2 && <DetectStep />}
-              {step === 3 && <InvestigateStep key={`inv-${runKey}`} />}
+              {step === 1 && <OptimizeStep key={`opt-${runKey}`} />}
+              {step === 2 && <IngestStep key={`ingest-${runKey}`} />}
+              {step === 3 && <DetectStep />}
+              {step === 4 && <InvestigateStep key={`inv-${runKey}`} />}
             </div>
           </div>
         </div>
@@ -346,7 +348,128 @@ function RawStep() {
 }
 
 /* ------------------------------------------------------------------ *
- * Step 1 — ingest / chunk / embed
+ * Step 1 — optimize raw logs
+ * ------------------------------------------------------------------ */
+
+const OPT_BEFORE = [
+  { text: "02:03 GET /healthz 200 kube-probe/1.29", kind: "noise" as const },
+  { text: "02:04 GET /healthz 200 kube-probe/1.29", kind: "noise" as const },
+  { text: "02:14 ERROR [secrets] kms:Decrypt AccessDenied key/4a1e9c33…", kind: "dupe" as const },
+  { text: "02:14 ERROR [secrets] kms:Decrypt AccessDenied key/4a1e9c33…", kind: "dupe" as const },
+  { text: "02:15 ERROR [secrets] kms:Decrypt AccessDenied key/4a1e9c33…", kind: "dupe" as const },
+  { text: "02:16 INFO probe token=sk_live_9f8a21c… by ops@corp.com", kind: "secret" as const },
+  { text: "02:16 FATAL [startup] no usable DB credentials — exiting", kind: "keep" as const },
+]
+
+const OPT_AFTER = [
+  { text: "02:14 ERROR [secrets] kms:Decrypt AccessDenied key/4a1e9c33…  (×3)", tone: "dupe" as const },
+  { text: "02:16 INFO probe token=[REDACTED] by [email]", tone: "secret" as const },
+  { text: "02:16 FATAL [startup] no usable DB credentials — exiting", tone: "keep" as const },
+]
+
+const OPT_KIND_CLS: Record<string, string> = {
+  noise: "text-muted line-through opacity-50",
+  dupe: "text-alert",
+  secret: "text-secondary",
+  keep: "text-foreground",
+}
+
+function OptimizeStep() {
+  const [optimized, setOptimized] = useState(false)
+
+  useEffect(() => {
+    const t = setTimeout(() => setOptimized(true), 1400)
+    return () => clearTimeout(t)
+  }, [])
+
+  return (
+    <div className="flex flex-col gap-4">
+      <p className="max-w-2xl text-pretty text-sm leading-relaxed text-muted">
+        Before anything is tokenized, each raw payload runs through{" "}
+        <code className="font-mono text-accent">optimizeRaw()</code>. It collapses duplicate spam, drops health-probe
+        noise, and redacts secrets &amp; PII — cutting embedding tokens without losing a single diagnostic clue.
+      </p>
+
+      <div className="grid gap-3 lg:grid-cols-2">
+        {/* Before */}
+        <div className="rounded-2xl border border-border bg-surface/60 p-4">
+          <p className="mb-3 flex items-center justify-between font-mono text-[11px] uppercase tracking-wider text-muted">
+            <span>Raw payload</span>
+            <span>7 lines</span>
+          </p>
+          <ul className="flex flex-col gap-1.5">
+            {OPT_BEFORE.map((l, i) => (
+              <li
+                key={i}
+                className={`rounded border border-border/50 bg-background/50 px-2 py-1.5 font-mono text-[11px] leading-snug ${OPT_KIND_CLS[l.kind]}`}
+              >
+                {l.text}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* After */}
+        <div
+          className={`rounded-2xl border p-4 transition-all duration-500 ${
+            optimized ? "border-accent/50 bg-accent/5" : "border-border bg-surface/30 opacity-60"
+          }`}
+        >
+          <p className="mb-3 flex items-center justify-between font-mono text-[11px] uppercase tracking-wider text-accent">
+            <span>Optimized</span>
+            <span>{optimized ? "3 lines" : "optimizing…"}</span>
+          </p>
+          {optimized ? (
+            <ul className="flex flex-col gap-1.5">
+              {OPT_AFTER.map((l, i) => (
+                <li
+                  key={i}
+                  className={`rounded border px-2 py-1.5 font-mono text-[11px] leading-snug text-foreground ${
+                    l.tone === "secret"
+                      ? "border-secondary/30 bg-secondary/5"
+                      : l.tone === "keep"
+                        ? "border-border bg-background/50"
+                        : "border-alert/30 bg-alert/5"
+                  }`}
+                >
+                  {l.text}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="flex h-full min-h-[8rem] items-center justify-center">
+              <span className="h-2 w-2 animate-ping rounded-full bg-accent" aria-hidden="true" />
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div
+        className={`flex flex-wrap items-center gap-2 transition-opacity duration-500 ${optimized ? "opacity-100" : "opacity-0"}`}
+      >
+        <span className="rounded-md border border-accent/40 bg-accent/5 px-2.5 py-1 font-mono text-xs text-accent">
+          ~70% fewer tokens
+        </span>
+        <span className="rounded-md border border-alert/40 bg-alert/5 px-2.5 py-1 font-mono text-xs text-alert">
+          3 duplicates → ×3
+        </span>
+        <span className="rounded-md border border-secondary/40 bg-secondary/5 px-2.5 py-1 font-mono text-xs text-secondary">
+          token &amp; email redacted
+        </span>
+        <span className="rounded-md border border-border bg-surface px-2.5 py-1 font-mono text-xs text-muted">
+          2 probe lines dropped
+        </span>
+      </div>
+      <p className="max-w-2xl text-pretty text-xs leading-relaxed text-muted">
+        Note the <span className="text-foreground">FATAL</span> line and the KMS error survive untouched — the signal
+        that cracks this incident is never optimized away.
+      </p>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ *
+ * Step 2 — ingest / chunk / embed
  * ------------------------------------------------------------------ */
 
 function IngestStep() {
@@ -362,9 +485,9 @@ function IngestStep() {
   return (
     <div className="flex flex-col gap-4">
       <p className="max-w-2xl text-pretty text-sm leading-relaxed text-muted">
-        Each source is POSTed to <code className="font-mono text-accent">/api/ingest</code>, split into semantic
-        chunks, embedded into <span className="text-foreground">1536-dim vectors</span>, and stored in Neon
-        (pgvector) — ready for semantic search.
+        The optimized logs are then split into semantic chunks, embedded into{" "}
+        <span className="text-foreground">1536-dim vectors</span>, and stored in Neon (pgvector) — ready for semantic
+        search.
       </p>
 
       <div className="flex flex-col gap-2">

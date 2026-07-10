@@ -1,7 +1,7 @@
 "use client"
 
-import Link from "next/link"
 import type { ReactNode } from "react"
+import { AppNav } from "./app-nav"
 
 /* ---------------------------------- Icons --------------------------------- */
 
@@ -103,6 +103,34 @@ function AlertIcon({ className }: IconProps) {
     <svg {...iconBase} className={className}>
       <path d="M12 9v4M12 17h.01" />
       <path d="M10.3 3.3 2 18a2 2 0 0 0 1.7 3h16.6A2 2 0 0 0 22 18L13.7 3.3a2 2 0 0 0-3.4 0Z" />
+    </svg>
+  )
+}
+function CompressIcon({ className }: IconProps) {
+  return (
+    <svg {...iconBase} className={className}>
+      <path d="M4 8h16M4 12h10M4 16h7" />
+      <path d="M17 14l3-3-3-3" />
+    </svg>
+  )
+}
+function StreamIcon({ className }: IconProps) {
+  return (
+    <svg {...iconBase} className={className}>
+      <path d="M5 12h14" />
+      <path d="M12 5c-4 0-7 3-7 7s3 7 7 7" />
+      <circle cx="18" cy="12" r="2" />
+      <path d="M12 5l2 2-2 2" />
+    </svg>
+  )
+}
+function SseIcon({ className }: IconProps) {
+  return (
+    <svg {...iconBase} className={className}>
+      <path d="M4.5 16.5c-1.5-1.5-2.5-3.5-2.5-5.5a8 8 0 0 1 16 0c0 2-1 4-2.5 5.5" />
+      <path d="M8.5 13.5A4 4 0 0 1 8 12a4 4 0 0 1 8 0 4 4 0 0 1-.5 1.5" />
+      <line x1="12" y1="12" x2="12" y2="21" />
+      <circle cx="12" cy="21" r="1" fill="currentColor" />
     </svg>
   )
 }
@@ -444,39 +472,6 @@ function Chip({ children, accent = "accent" }: { children: ReactNode; accent?: A
   return <span className={`rounded-md border px-2.5 py-1 font-mono text-xs ${cls}`}>{children}</span>
 }
 
-/* --------------------------------- Header -------------------------------- */
-
-function NavTabs() {
-  return (
-    <nav className="flex items-center gap-1.5" aria-label="Primary">
-      <Link
-        href="/"
-        className="rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent"
-      >
-        Chat
-      </Link>
-      <Link
-        href="/demo"
-        className="hidden rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent sm:block"
-      >
-        Demo
-      </Link>
-      <Link
-        href="/logs"
-        className="hidden rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent sm:block"
-      >
-        Live logs
-      </Link>
-      <span
-        aria-current="page"
-        className="rounded-lg border border-accent/60 bg-accent/10 px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-accent"
-      >
-        Architecture
-      </span>
-    </nav>
-  )
-}
-
 /* ---------------------------------- View --------------------------------- */
 
 export function ArchitectureView() {
@@ -487,15 +482,15 @@ export function ArchitectureView() {
           <div className="glow-accent flex h-7 w-7 items-center justify-center rounded-lg border border-accent/60 bg-accent/10 font-mono text-xs font-bold text-accent" aria-hidden="true">
             AI
           </div>
-          <h1 className="hidden text-glow-accent font-mono text-sm font-semibold uppercase tracking-[0.2em] text-accent sm:block">
+          <h1 className="text-glow-accent font-mono text-sm font-semibold uppercase tracking-[0.2em] text-accent">
             RAG<span className="text-secondary text-glow-secondary">//</span>Architecture
           </h1>
         </div>
-        <NavTabs />
+        <AppNav />
       </header>
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto flex w-full max-w-5xl flex-col gap-14 px-4 py-10">
+        <div className="flex-1 overflow-y-auto">
+          <div className="mx-auto flex w-full max-w-5xl flex-col gap-14 px-4 py-6">
           {/* Intro */}
           <div className="flex flex-col gap-3">
             <span className="font-mono text-xs uppercase tracking-[0.3em] text-secondary text-glow-secondary">
@@ -541,6 +536,69 @@ export function ArchitectureView() {
               live logs, cite exact lines,
               and avoid hallucinating incidents that didn&apos;t happen.
             </p>
+          </Section>
+
+          {/* Pre-ingestion compression */}
+          <Section eyebrow="Pre-ingestion layer" title="EKS log compression">
+            <p className="max-w-2xl text-pretty leading-relaxed text-muted">
+              Before logs reach the ingestion pipeline, an optional compression step aggressively
+              removes noise to save tokens and improve LLM signal quality. Raw EKS output can be reduced
+              by <span className="text-accent">65–80%</span> in character count while preserving every
+              actionable diagnostic signal.
+            </p>
+            <Flow>
+              <StageCard index={1} icon={<SourcesIcon />} title="Raw EKS logs" code="text · JSON · NDJSON" accent="secondary">
+                kubectl output, Fluent Bit JSON, or CloudTrail records — verbose and noisy.
+              </StageCard>
+              <FlowArrow accent="secondary" />
+              <StageCard index={2} icon={<CompressIcon />} title="compressEksLogs()" code="POST /api/compress" accent="secondary">
+                8-step pipeline: strips comments &amp; headers, filters health-checks, redacts ARNs/UUIDs, truncates stack traces, deduplicates globally, drops INFO-only lines.
+              </StageCard>
+              <FlowArrow accent="secondary" />
+              <StageCard index={3} icon={<IngestIcon />} title="Compressed output" code="[TIME|LEVEL|COMP] MSG" accent="secondary">
+                Compact single-line format with repeat counters. Ready to POST to <span className="font-mono">/api/ingest</span>.
+              </StageCard>
+            </Flow>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-2xl border border-secondary/30 bg-secondary/5 p-5">
+                <p className="mb-3 font-mono text-xs uppercase tracking-wider text-secondary">Compression techniques</p>
+                <ul className="flex flex-col gap-1.5 text-sm leading-relaxed text-muted">
+                  {[
+                    "Strip comment / header / metric rows",
+                    "Health-check & probe line removal",
+                    "ARN → resource/name · UUID → 8-char hash",
+                    "Stack traces → error class + 2 frames",
+                    "Run-length dedup (consecutive)",
+                    "Global WARN/ERROR dedup (non-consecutive)",
+                    "INFO drop when anomalies present",
+                  ].map((t) => (
+                    <li key={t} className="flex items-start gap-2">
+                      <span className="mt-1 shrink-0 text-secondary">›</span>
+                      {t}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface/70 p-5">
+                <p className="font-mono text-xs uppercase tracking-wider text-accent">Before / after</p>
+                <div className="flex flex-col gap-2 font-mono text-[11px]">
+                  <div className="rounded border border-border bg-background/60 px-2 py-2 leading-relaxed text-muted line-through opacity-60">
+                    {`2024-01-15T14:23:01.123Z ERROR orders-api pod/orders-api-7c9f-nqx2p Failed to connect to postgres://rds-cluster-cxy7.us-east-1.rds.amazonaws.com:5432 requestId=6b1f2e9a-3c4d-45e6-8f7a-9b0c1d2e3f4a`}
+                  </div>
+                  <div className="flex items-center gap-1.5 text-secondary">
+                    <span>↓</span>
+                    <span className="text-xs">compressed</span>
+                  </div>
+                  <div className="rounded border border-secondary/30 bg-secondary/5 px-2 py-2 leading-relaxed text-foreground">
+                    {`[14:23:01Z|ERROR|orders-api] Failed to connect to postgres://rds-cluster-1:rds`}
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Chip accent="secondary">~70% reduction</Chip>
+                  <Chip accent="secondary">zero info loss</Chip>
+                </div>
+              </div>
+            </div>
           </Section>
 
           {/* Ingestion pipeline */}
@@ -686,6 +744,71 @@ embedding   vector(1536)  -- pgvector`}
             </div>
           </Section>
 
+          {/* Stream simulator */}
+          <Section eyebrow="Simulation layer" title="Live EKS stream simulator">
+            <p className="max-w-2xl text-pretty leading-relaxed text-muted">
+              A built-in simulator generates a continuous synthetic EKS log feed — no real cluster required.
+              It drives the full ingestion pipeline end-to-end so every other feature (compression, RAG search,
+              incident detection) operates on live data.
+            </p>
+            <div className="grid gap-4 lg:grid-cols-3">
+              <div className="rounded-2xl border border-accent/30 bg-accent/5 p-5">
+                <div className="mb-3 flex items-center gap-2">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-accent/40 bg-background/60 text-accent">
+                    <StreamIcon />
+                  </div>
+                  <p className="font-mono text-xs uppercase tracking-wider text-accent">Generator</p>
+                </div>
+                <p className="text-sm leading-relaxed text-muted">
+                  <span className="text-foreground">generateEksBatch()</span> produces weighted-random log lines:
+                  60% INFO / 25% WARN / 15% ERROR across 5 services, 4 nodes, and 4 namespaces with realistic
+                  message templates.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  <Chip>60% INFO</Chip>
+                  <Chip accent="alert">25% WARN</Chip>
+                  <Chip accent="secondary">15% ERROR</Chip>
+                </div>
+              </div>
+              <div className="rounded-2xl border border-accent/30 bg-accent/5 p-5">
+                <div className="mb-3 flex items-center gap-2">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-accent/40 bg-background/60 text-accent">
+                    <IngestIcon />
+                  </div>
+                  <p className="font-mono text-xs uppercase tracking-wider text-accent">Control</p>
+                </div>
+                <p className="text-sm leading-relaxed text-muted">
+                  <span className="font-mono text-foreground">POST /api/stream/control</span> starts or stops a
+                  module-scoped <span className="text-foreground">setInterval</span> that fires every 500ms–10s
+                  (configurable). Each tick POSTs 3 lines to <span className="font-mono">/api/ingest</span>.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  <Chip>500ms – 10s</Chip>
+                  <Chip>3 lines / tick</Chip>
+                </div>
+              </div>
+              <div className="rounded-2xl border border-accent/30 bg-accent/5 p-5">
+                <div className="mb-3 flex items-center gap-2">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-accent/40 bg-background/60 text-accent">
+                    <SseIcon />
+                  </div>
+                  <p className="font-mono text-xs uppercase tracking-wider text-accent">Live tail</p>
+                </div>
+                <p className="text-sm leading-relaxed text-muted">
+                  <span className="font-mono text-foreground">GET /api/stream</span> is an SSE endpoint that polls
+                  Neon every 2s for newly inserted <span className="font-mono">log_chunks</span> and pushes them to
+                  the browser as <span className="text-foreground">text/event-stream</span> events. Auto-reconnects
+                  on disconnect.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  <Chip>SSE</Chip>
+                  <Chip>2s poll</Chip>
+                  <Chip accent="secondary">auto-reconnect</Chip>
+                </div>
+              </div>
+            </div>
+          </Section>
+
           {/* Stack */}
           <Section eyebrow="Under the hood" title="Tech stack">
             <div className="flex flex-wrap gap-2">
@@ -694,8 +817,11 @@ embedding   vector(1536)  -- pgvector`}
               <Chip accent="secondary">openai/gpt-5.1-instant</Chip>
               <Chip accent="secondary">text-embedding-3-small</Chip>
               <Chip>Neon Postgres</Chip>
-              <Chip>pgvector</Chip>
+              <Chip>pgvector · HNSW index</Chip>
               <Chip accent="alert">SWR live polling</Chip>
+              <Chip accent="secondary">EKS log compressor</Chip>
+              <Chip>SSE live tail</Chip>
+              <Chip accent="alert">stream simulator</Chip>
             </div>
           </Section>
         </div>

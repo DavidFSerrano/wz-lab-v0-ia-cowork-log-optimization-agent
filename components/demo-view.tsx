@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Markdown } from "./markdown"
+import { AppNav } from "./app-nav"
 
 /* ------------------------------------------------------------------ *
  * Pre-existing logs (real content from /logs) that power this demo.
@@ -212,19 +213,12 @@ export function DemoView() {
             Demo<span className="text-secondary text-glow-secondary">//</span>Playback
           </h1>
         </div>
-        <div className="flex items-center gap-2">
-          <Link href="/" className="rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent">
-            Chat
-          </Link>
-          <Link href="/architecture" className="hidden rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent sm:block">
-            Architecture
-          </Link>
-        </div>
+        <AppNav />
       </header>
 
       {/* Controls + stepper */}
       <div className="border-b border-border/60 bg-surface/30 px-4 py-3">
-        <div className="mx-auto flex w-full max-w-3xl flex-col gap-3">
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-3">
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -284,7 +278,7 @@ export function DemoView() {
 
       {/* Stage */}
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col justify-center px-4 py-6">
+        <div className="mx-auto flex min-h-full w-full max-w-5xl flex-col justify-center px-4 py-6">
           <div key={`${runKey}-${step}`} className="animate-[fadeIn_.4s_ease]">
             <p className="font-mono text-xs uppercase tracking-[0.3em] text-secondary">{STEPS[step].eyebrow}</p>
             <h2 className="mt-1 text-balance text-xl font-bold tracking-tight text-foreground sm:text-2xl">

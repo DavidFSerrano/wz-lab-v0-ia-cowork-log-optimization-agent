@@ -1,8 +1,8 @@
 "use client"
 
 import useSWR from "swr"
-import Link from "next/link"
 import { useEffect, useState } from "react"
+import { AppNav } from "./app-nav"
 
 type LogRow = {
   id: number
@@ -106,7 +106,7 @@ export function LogsFeed() {
           <button
             type="button"
             onClick={() => setLive((v) => !v)}
-            className="flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:text-foreground"
+            className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent"
           >
             <span
               className={`h-1.5 w-1.5 rounded-full ${live ? "animate-pulse bg-accent shadow-[0_0_6px_theme(colors.accent)]" : "bg-muted"}`}
@@ -114,35 +114,12 @@ export function LogsFeed() {
             />
             {live ? "Live" : "Paused"}
           </button>
-          <Link
-            href="/"
-            className="rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent"
-          >
-            Chat
-          </Link>
-          <Link
-            href="/demo"
-            className="rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent"
-          >
-            Demo
-          </Link>
-          <span
-            aria-current="page"
-            className="rounded-lg border border-accent/60 bg-accent/10 px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-accent"
-          >
-            Live logs
-          </span>
-          <Link
-            href="/architecture"
-            className="hidden rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent sm:block"
-          >
-            Architecture
-          </Link>
+          <AppNav />
         </div>
       </header>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto w-full max-w-2xl px-4 py-6">
+        <div className="mx-auto w-full max-w-5xl px-4 py-6">
           <div className="mb-4 flex items-center justify-between">
             <p className="text-sm text-muted">
               {logs.length > 0 ? `Showing ${logs.length} most recent chunks` : "Waiting for logs…"}

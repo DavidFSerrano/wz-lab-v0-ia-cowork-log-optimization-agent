@@ -122,10 +122,16 @@ export function LogsFeed() {
           </Link>
           <Link
             href="/demo"
-            className="rounded-lg border border-accent/40 bg-accent/5 px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-accent transition-colors hover:border-accent hover:bg-accent/10"
+            className="rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent"
           >
             Demo
           </Link>
+          <span
+            aria-current="page"
+            className="rounded-lg border border-accent/60 bg-accent/10 px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-accent"
+          >
+            Live logs
+          </span>
           <Link
             href="/architecture"
             className="hidden rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent sm:block"

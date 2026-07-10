@@ -1,22 +1,28 @@
-# Business Context: ExampleCorp Log-Optimization Engine
+# Business Context: ExampleCorp — Log Ingestion & Optimization AI Agent
 
 ## 1. Company Overview
-ExampleCorp is a modern, Kubernetes-centric Infrastructure-as-a-Service (IaaS) provider built natively on Amazon Elastic Kubernetes Service (EKS). ExampleCorp delivers fully managed, ultra-secure, and dynamically scalable EKS clusters seamlessly integrated with core AWS primitives. 
+ExampleCorp is a modern, Kubernetes-centric Infrastructure-as-a-Service (IaaS) provider built natively on Amazon Elastic Kubernetes Service (EKS). ExampleCorp delivers fully managed, ultra-secure, and dynamically scalable EKS clusters seamlessly integrated with core AWS primitives.
 
 ## 2. Core Problem & Product Vision
-Modern cloud-native architectures generate petabytes of repetitive text-based log streams. Companies pay exorbitant ingestion costs to observability tools (e.g., Datadog, Splunk, AWS CloudWatch) for redundant boilerplate data (such as continuous UUID strings, health check messages, and repeating stack traces).
+Modern EKS clusters emit enormous volumes of highly redundant log data. SREs must scroll through thousands of identical health-check lines, duplicated UUIDs, verbose ARNs, and repeated stack traces before reaching the one line that describes the actual failure. This creates:
+- Wasted time during incident triage
+- Excessive token costs when feeding raw logs to LLMs for root-cause analysis
+- Poor signal-to-noise ratio in AI-generated diagnostics
 
-ExampleCorp is building a CLI-first log-optimization engine paired with an advanced, terminal-styled developer GUI. This tool acts as a local local-first filter:
-1. It intercepts log streams (starting with Kubernetes standard out, expanding later to CloudWatch, CloudTrail, Traefik, and Istio).
-2. It executes aggressive rule-based compression locally via regex parsing (stripping continuous structural duplicates, system noise, and boilerplate text).
-3. It measures real-time data reduction and character-to-token translations.
-4. It hands off the filtered log context directly to a localized multi-agent diagnostic chat loop for zero-latency root-cause analysis (RCA).
+The SRE AI Agent solves this with a four-layer architecture:
+1. **Pre-ingestion compression** — strips noise from raw EKS logs (65–80% character reduction) before any LLM call.
+2. **Vector ingestion pipeline** — chunks, embeds, and stores compressed log entries in Neon (pgvector) for semantic retrieval.
+3. **RAG-powered chat** — an SRE-focused AI assistant that searches stored log chunks by semantic similarity and returns structured incident reports.
+4. **Live stream simulation** — a continuous synthetic EKS log feed that drives the full pipeline end-to-end without needing a real cluster.
 
 ## 3. Targeted User Personas
-* **DevOps & Site Reliability Engineers (SREs):** Need to debug critical failures (like CrashLoopBackOff states) without wading through millions of identical health-check frames, while keeping enterprise cloud egress fees at a absolute minimum.
-* **Platform Engineers:** Responsible for optimizing overall monitoring infrastructure costs across enterprise clusters.
+- **Site Reliability Engineers (SREs):** Need to triage CrashLoopBackOff events, OOMKilled pods, and KMS access failures in seconds, not hours, while minimising cloud egress and LLM token spend.
+- **Platform Engineers:** Responsible for optimising observability pipeline costs across enterprise EKS clusters. Need proof that AI-assisted log compression retains actionable signal.
+- **Developer Experience Engineers:** Want to demo AI-powered log analysis to clients without needing a live EKS cluster.
 
-## 4. Prototype Scope (Vercel v0 Target)
-* **IN:** A single-page, hyper-functional, developer-centric terminal workspace dashboard featuring a streaming sidebar dashboard on the left and an interactive multi-agent chat interface on the right.
-* **IN:** Fully functional local simulation infrastructure (`mockLogService.ts`) providing realistic Kubernetes log streams, computing dynamic live telemetry, and providing rich markdown-formatted diagnostic responses inside the chat console.
-* **OUT:** Active production Python system daemon integrations, multi-cluster config maps, authentication barriers.
+## 4. Prototype Scope
+- **IN:** Multi-page terminal-themed dashboard — Chat (RAG), Demo (guided walkthrough), Live Logs, Compressor, Stream, Architecture.
+- **IN:** Fully functional backend — Neon Postgres with pgvector, embedding via `text-embedding-3-small`, LLM via `gpt-5.1-instant`, incident auto-detection.
+- **IN:** Simulated EKS log stream with Start/Stop/Speed controls and SSE live tail.
+- **IN:** EKS log compressor with before/after metrics (ARN redaction, UUID truncation, global dedup, stack trace truncation).
+- **OUT:** Real EKS cluster connectivity, multi-tenant auth, production alerting integrations.

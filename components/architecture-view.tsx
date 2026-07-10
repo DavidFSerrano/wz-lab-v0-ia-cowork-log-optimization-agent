@@ -484,7 +484,7 @@ export function ArchitectureView() {
           </Section>
 
           {/* Chunking */}
-          <Section eyebrow="Step 3 detail" title="Chunking strategy">
+          <Section eyebrow="Zoom in · chunk" title="Chunking strategy">
             <p className="max-w-2xl text-pretty leading-relaxed text-muted">
               A wall of log text is useless to search as one blob, so it&apos;s broken into right-sized pieces. The
               chunker also scans each chunk for an ISO timestamp and keyword-classifies its severity into{" "}
@@ -495,7 +495,7 @@ export function ArchitectureView() {
           </Section>
 
           {/* Embeddings */}
-          <Section eyebrow="Step 4 detail" title="Embeddings">
+          <Section eyebrow="Zoom in · embed" title="Embeddings">
             <p className="max-w-2xl text-pretty leading-relaxed text-muted">
               Each chunk is converted into a list of 1536 numbers that captures its meaning. Text with similar meaning
               lands close together in vector space — which is what makes semantic (not keyword) search possible.

@@ -77,6 +77,38 @@ Models: chat = `openai/gpt-5.1-instant`; embeddings =
 `app/logs/page.tsx` → `components/logs-feed.tsx` → `GET /api/logs` →
 `recentLogs()`. SWR polls every ~3s; `afterId` fetches only newer rows.
 
+### Flow 3 — Incident detection (PARALLEL to RAG, does not touch it)
+`POST /api/ingest` → (after storage) `lib/incidents.ts: detectIncidents()` → `incidents` table
+
+Automatic multi-incident detection. This layer only **reads** `log_chunks` and
+**writes** the `incidents` table — it never changes chunking/embedding/retrieval.
+
+1. `detectIncidents()` (`lib/incidents.ts`) is called fire-and-forget at the end
+   of `POST /api/ingest` (awaited but wrapped so it can never fail ingestion).
+2. Rule-based clustering: groups recent (`created_at` within `RECENT_WINDOW`,
+   default 6h) `error`/`warn` chunks by `service`+`environment`; a cluster with
+   `>= MIN_ERRORS` (default 3) error chunks becomes an incident. Severity:
+   `critical` ≥10, `error` ≥3, else `warn`.
+3. **One LLM call per NEW incident** (`describeCluster`, `generateObject` with
+   `openai/gpt-5.1-instant`) generates a human title + summary. Existing
+   incidents (matched by `signature = service|environment`) are just updated
+   (counts / last_seen / severity) — no LLM call.
+4. `GET /api/incidents` → `listIncidents()` powers the dashboard grid.
+
+**UI:** `components/incident-dashboard.tsx` (SWR grid, 5s poll) is the default
+view in `components/chat.tsx`. Selecting a card opens a chat scoped to that
+incident: the incident context is sent in the `sendMessage` body and
+`app/api/chat/route.ts` injects it into the system prompt so the model filters
+`searchLogs` by that service + time window. **The `searchLogs` tool itself is
+unchanged** — scoping is prompt-level only.
+
+Note: `error_count` counts error *chunks*, not log lines. Text logs pack into
+~700-char chunks, so to cross `MIN_ERRORS` from a test, send distinct records
+(NDJSON / JSON array) rather than one text blob.
+
+Setup: `node --env-file-if-exists=/vercel/share/.env.project scripts/setup-incidents.mjs`
+(creates the `incidents` table; safe to re-run).
+
 ## File map
 
 | Path | Role |

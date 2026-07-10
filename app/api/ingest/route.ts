@@ -1,4 +1,5 @@
 import { ingestDocument, type LogDocument } from "@/lib/logs-pipeline"
+import { detectIncidents } from "@/lib/incidents"
 
 export const maxDuration = 60
 
@@ -114,6 +115,16 @@ export async function POST(req: Request) {
       const { chunks } = await ingestDocument(doc)
       totalChunks += chunks
     }
+
+    // Parallel incident detection: reads the just-ingested chunks and upserts
+    // incidents. Awaited but never allowed to fail the ingest response — the
+    // RAG pipeline above is the source of truth and stays untouched.
+    try {
+      await detectIncidents()
+    } catch (err) {
+      console.log("[v0] incident detection error:", err instanceof Error ? err.message : err)
+    }
+
     return Response.json({ ok: true, documents: docs.length, chunks: totalChunks })
   } catch (err) {
     console.log("[v0] ingest error:", err instanceof Error ? err.message : err)

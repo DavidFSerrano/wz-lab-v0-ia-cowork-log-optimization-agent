@@ -119,3 +119,35 @@ body > * {
   scrollbar-width: thin;
   scrollbar-color: var(--color-accent) transparent;
 }
+
+/* Data flowing along pipeline connectors */
+@keyframes dash-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+.animate-dash-flow {
+  stroke-dasharray: 4 8;
+  animation: dash-flow 1s linear infinite;
+}
+
+/* Gentle floating for diagram accents */
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+.animate-float-y {
+  animation: float-y 3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-dash-flow,
+  .animate-float-y {
+    animation: none;
+  }
+}

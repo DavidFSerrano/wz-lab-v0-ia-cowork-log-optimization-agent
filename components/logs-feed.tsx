@@ -120,6 +120,12 @@ export function LogsFeed() {
           >
             Chat
           </Link>
+          <Link
+            href="/architecture"
+            className="rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent"
+          >
+            Architecture
+          </Link>
         </div>
       </header>
 

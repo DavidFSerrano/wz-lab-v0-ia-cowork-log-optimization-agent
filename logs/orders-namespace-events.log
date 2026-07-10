@@ -1,0 +1,24 @@
+# Source: kubectl get events -n orders --sort-by=.lastTimestamp
+# Captured: 2026-07-10T02:41:20Z
+# Columns: LAST SEEN | TYPE | REASON | OBJECT | MESSAGE
+
+02:05:11  Normal   ScalingReplicaSet     deployment/orders-api          Scaled up replica set orders-api-7c9f8b6d5f to 6 (rollout of image v2.8.4)
+02:05:12  Normal   SuccessfulCreate      replicaset/orders-api-7c9f8b6d5f  Created pod: orders-api-7c9f8b6d5f-nqx2p
+02:05:44  Normal   Started               pod/orders-api-7c9f8b6d5f-nqx2p   Started container orders-api
+02:06:10  Normal   Killing               replicaset/orders-api-6b8d7c4a21  Scaled down old replica set orders-api-6b8d7c4a21 to 0 (rollout complete)
+# ^ Deploy of v2.8.4 finished cleanly at 02:06 and pods were healthy for ~8 minutes.
+
+02:14:03  Warning  Unhealthy             pod/orders-api-7c9f8b6d5f-nqx2p   Readiness probe failed: connection refused
+02:14:59  Warning  Unhealthy             pod/orders-api-7c9f8b6d5f-8dk4w   Readiness probe failed: connection refused
+02:16:22  Warning  BackOff               pod/orders-api-7c9f8b6d5f-nqx2p   Back-off restarting failed container orders-api
+02:17:40  Warning  FailedScheduling      pod/orders-api-7c9f8b6d5f-r7t2z   0/9 nodes are available: 3 Insufficient cpu, 6 node(s) had taint {dedicated: batch}.
+02:18:05  Normal   TriggeredScaleUp      pod/orders-api-7c9f8b6d5f-r7t2z   pod triggered scale-up: cluster-autoscaler added node group orders-ng from 6 to 8
+02:19:31  Normal   Scheduled             pod/orders-api-7c9f8b6d5f-r7t2z   Successfully assigned orders/orders-api-7c9f8b6d5f-r7t2z to ip-10-42-19-004...
+02:19:58  Warning  BackOff               pod/orders-api-7c9f8b6d5f-r7t2z   Back-off restarting failed container orders-api
+# ^ FailedScheduling + autoscaler scale-up: only ONE pod was briefly unschedulable due to CPU;
+#   the newly scheduled pod ALSO crash-looped, so capacity is not the root cause.
+
+02:22:14  Warning  BackOff               pod/orders-api-7c9f8b6d5f-8dk4w   Back-off restarting failed container orders-api
+02:28:47  Warning  BackOff               pod/orders-api-7c9f8b6d5f-nqx2p   Back-off restarting failed container orders-api
+02:35:02  Warning  BackOff               pod/orders-api-7c9f8b6d5f-r7t2z   Back-off restarting failed container orders-api
+02:40:39  Warning  BackOff               pod/orders-api-7c9f8b6d5f-nqx2p   Back-off restarting failed container orders-api

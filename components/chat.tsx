@@ -6,10 +6,10 @@ import { useEffect, useRef, useState } from "react"
 import { ChatMessage, TypingIndicator } from "./chat-message"
 
 const SUGGESTIONS = [
-  "Explain how streaming responses work",
-  "Write a haiku about databases",
-  "Summarize the theory of relativity",
-  "Give me ideas for a weekend project",
+  "orders-api pods are in CrashLoopBackOff in prod. What's the root cause?",
+  "Walk me through a timeline of the orders-api incident across all logs",
+  "Is the Aurora database the cause of the orders-api outage?",
+  "What changed right before orders-api started crashing?",
 ]
 
 export function Chat() {
@@ -65,9 +65,9 @@ export function Chat() {
                 AI
               </div>
               <div className="space-y-1.5">
-                <h2 className="text-xl font-semibold text-balance">How can I help you today?</h2>
+                <h2 className="text-xl font-semibold text-balance">SRE incident assistant</h2>
                 <p className="text-sm text-muted text-pretty">
-                  Ask anything. Responses stream in as they&apos;re generated.
+                  I can read the Kubernetes and AWS logs in this repo and correlate them to find root cause.
                 </p>
               </div>
               <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2">

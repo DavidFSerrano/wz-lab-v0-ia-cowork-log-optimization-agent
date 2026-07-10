@@ -1,0 +1,56 @@
+# Source: kubectl describe pod orders-api-7c9f8b6d5f-nqx2p -n orders
+# Captured: 2026-07-10T02:41:07Z
+
+Name:             orders-api-7c9f8b6d5f-nqx2p
+Namespace:        orders
+Priority:         0
+Service Account:  orders-api-sa
+Node:             ip-10-42-18-233.us-east-1.compute.internal/10.42.18.233
+Start Time:       Fri, 10 Jul 2026 02:14:52 +0000
+Labels:           app=orders-api
+                  pod-template-hash=7c9f8b6d5f
+Annotations:      eks.amazonaws.com/role-arn: arn:aws:iam::480129847221:role/orders-api-irsa
+Status:           Running
+IP:               10.42.18.91
+Controlled By:    ReplicaSet/orders-api-7c9f8b6d5f
+Containers:
+  orders-api:
+    Container ID:   containerd://a1f9c2e77b0c4d3e9a8f1b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e
+    Image:          480129847221.dkr.ecr.us-east-1.amazonaws.com/orders-api:v2.8.4
+    Image ID:       480129847221.dkr.ecr.us-east-1.amazonaws.com/orders-api@sha256:9b2c...e41a
+    Ports:          8080/TCP, 9090/TCP
+    State:          Waiting
+      Reason:       CrashLoopBackOff
+    Last State:     Terminated
+      Reason:       Error
+      Exit Code:    1
+      Started:      Fri, 10 Jul 2026 02:40:31 +0000
+      Finished:     Fri, 10 Jul 2026 02:40:39 +0000
+    Ready:          False
+    Restart Count:  7
+    Limits:
+      cpu:     1
+      memory:  1Gi
+    Requests:
+      cpu:      500m
+      memory:   512Mi
+    Liveness:   http-get http://:8080/healthz delay=15s timeout=1s period=10s #success=1 #failure=3
+    Readiness:  http-get http://:8080/ready delay=5s timeout=1s period=5s #success=1 #failure=3
+    Environment:
+      DB_SECRET_ARN:  arn:aws:secretsmanager:us-east-1:480129847221:secret:prod/orders/db-credentials-Ab12Cd
+      AWS_REGION:     us-east-1
+      DEPLOY_SHA:     v2.8.4
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             False
+  ContainersReady   False
+  PodScheduled      True
+Events:
+  Type     Reason     Age                    From     Message
+  ----     ------     ----                   ----     -------
+  Normal   Pulled     26m                    kubelet  Successfully pulled image "orders-api:v2.8.4" in 812ms
+  Normal   Created    26m (x3 over 26m)      kubelet  Created container orders-api
+  Normal   Started    26m (x3 over 26m)      kubelet  Started container orders-api
+  Warning  Unhealthy  25m (x9 over 26m)      kubelet  Readiness probe failed: Get "http://10.42.18.91:8080/ready": dial tcp 10.42.18.91:8080: connect: connection refused
+  Warning  BackOff    88s (x114 over 25m)    kubelet  Back-off restarting failed container orders-api in pod orders-api-7c9f8b6d5f-nqx2p_orders

@@ -1,0 +1,69 @@
+{
+  "_comment": "Source: AWS CloudTrail, filtered to KMS key 4a1e9c33-7b2d-4f6e-9c1a-2d8f5b6e7a90 (prod/orders DB secret encryption key). Times in UTC on 2026-07-10.",
+  "Records": [
+    {
+      "eventTime": "2026-07-10T02:12:38Z",
+      "eventSource": "kms.amazonaws.com",
+      "eventName": "PutKeyPolicy",
+      "awsRegion": "us-east-1",
+      "userIdentity": {
+        "type": "AssumedRole",
+        "arn": "arn:aws:sts::480129847221:assumed-role/terraform-ci-deployer/gh-actions-run-58213",
+        "sessionContext": { "sessionIssuer": { "userName": "terraform-ci-deployer" } }
+      },
+      "requestParameters": {
+        "keyId": "arn:aws:kms:us-east-1:480129847221:key/4a1e9c33-7b2d-4f6e-9c1a-2d8f5b6e7a90",
+        "policyName": "default"
+      },
+      "responseElements": null,
+      "_note": "Terraform CI applied a new key policy. Diff (from later investigation): the statement granting kms:Decrypt to arn:aws:iam::480129847221:role/orders-api-irsa was DROPPED from the key policy. This was an unintended change from PR infra/pr-1174 that refactored the shared KMS module."
+    },
+    {
+      "eventTime": "2026-07-10T02:14:07Z",
+      "eventSource": "kms.amazonaws.com",
+      "eventName": "Decrypt",
+      "awsRegion": "us-east-1",
+      "userIdentity": {
+        "type": "AssumedRole",
+        "arn": "arn:aws:sts::480129847221:assumed-role/orders-api-irsa/orders-api-7c9f8b6d5f-8dk4w"
+      },
+      "requestParameters": {
+        "keyId": "arn:aws:kms:us-east-1:480129847221:key/4a1e9c33-7b2d-4f6e-9c1a-2d8f5b6e7a90",
+        "encryptionContext": { "SecretARN": "arn:aws:secretsmanager:us-east-1:480129847221:secret:prod/orders/db-credentials-Ab12Cd" }
+      },
+      "errorCode": "AccessDenied",
+      "errorMessage": "User: arn:aws:sts::480129847221:assumed-role/orders-api-irsa/orders-api-7c9f8b6d5f-8dk4w is not authorized to perform: kms:Decrypt on this resource because no resource-based policy allows the kms:Decrypt action"
+    },
+    {
+      "eventTime": "2026-07-10T02:14:53Z",
+      "eventSource": "kms.amazonaws.com",
+      "eventName": "Decrypt",
+      "awsRegion": "us-east-1",
+      "userIdentity": {
+        "type": "AssumedRole",
+        "arn": "arn:aws:sts::480129847221:assumed-role/orders-api-irsa/orders-api-7c9f8b6d5f-nqx2p"
+      },
+      "requestParameters": {
+        "keyId": "arn:aws:kms:us-east-1:480129847221:key/4a1e9c33-7b2d-4f6e-9c1a-2d8f5b6e7a90",
+        "encryptionContext": { "SecretARN": "arn:aws:secretsmanager:us-east-1:480129847221:secret:prod/orders/db-credentials-Ab12Cd" }
+      },
+      "errorCode": "AccessDenied",
+      "errorMessage": "User is not authorized to perform: kms:Decrypt because no resource-based policy allows the kms:Decrypt action"
+    },
+    {
+      "eventTime": "2026-07-10T01:58:20Z",
+      "eventSource": "kms.amazonaws.com",
+      "eventName": "Decrypt",
+      "awsRegion": "us-east-1",
+      "userIdentity": {
+        "type": "AssumedRole",
+        "arn": "arn:aws:sts::480129847221:assumed-role/orders-api-irsa/orders-api-6b8d7c4a21-mm901"
+      },
+      "requestParameters": {
+        "keyId": "arn:aws:kms:us-east-1:480129847221:key/4a1e9c33-7b2d-4f6e-9c1a-2d8f5b6e7a90",
+        "encryptionContext": { "SecretARN": "arn:aws:secretsmanager:us-east-1:480129847221:secret:prod/orders/db-credentials-Ab12Cd" }
+      },
+      "_note": "SUCCESSFUL decrypt at 01:58, BEFORE the PutKeyPolicy change. Same IRSA role. Confirms permissions worked until 02:12."
+    }
+  ]
+}

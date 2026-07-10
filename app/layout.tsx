@@ -6,8 +6,8 @@ const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" })
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" })
 
 export const metadata: Metadata = {
-  title: "Assistant — LLM Chat",
-  description: "A clean, streaming chat interface for talking with an LLM.",
+  title: "SRE AI Agent — Log Ingestion & Optimization",
+  description: "Ingest, compress, and semantically search Kubernetes and AWS logs. AI-powered incident detection and root-cause analysis for SRE teams.",
 }
 
 export const viewport: Viewport = {

@@ -188,33 +188,39 @@ export function LogStreamView() {
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="flex min-h-screen flex-col bg-background font-sans">
+    <div className="flex h-dvh flex-col">
       {/* ── Header ── */}
-      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-surface/80 px-6 py-4 backdrop-blur-sm">
-        <div className="flex items-center gap-3">
-          {/* Live indicator */}
-          <span className="relative flex h-2.5 w-2.5">
-            {running && (
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
-            )}
-            <span
-              className={`relative inline-flex h-2.5 w-2.5 rounded-full ${running ? "bg-accent" : "bg-muted"}`}
-            />
-          </span>
-          <h1 className="font-mono text-sm font-semibold uppercase tracking-widest text-foreground text-glow-accent">
-            EKS Log Stream
+      <header className="flex items-center justify-between border-b border-accent/20 bg-surface/60 px-4 py-3 backdrop-blur-sm">
+        {/* Left: logo + title + live badge */}
+        <div className="flex items-center gap-2.5">
+          <div
+            className="glow-accent flex h-7 w-7 items-center justify-center rounded-lg border border-accent/60 bg-accent/10 font-mono text-xs font-bold text-accent"
+            aria-hidden="true"
+          >
+            EK
+          </div>
+          <h1 className="text-glow-accent font-mono text-sm font-semibold uppercase tracking-[0.2em] text-accent">
+            EKS<span className="text-secondary text-glow-secondary">//</span>Stream
           </h1>
           <span
-            className={`rounded border px-2 py-0.5 font-mono text-xs font-medium uppercase tracking-widest ${running ? "border-accent/40 bg-accent/10 text-accent" : "border-border bg-surface-2 text-muted"}`}
+            className={`rounded border px-2 py-0.5 font-mono text-xs font-medium uppercase tracking-widest ${running ? "border-accent/40 bg-accent/10 text-accent" : "border-border text-muted"}`}
           >
-            {running ? "Live" : "Paused"}
+            {running ? (
+              <span className="flex items-center gap-1.5">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+                </span>
+                Live
+              </span>
+            ) : "Paused"}
           </span>
         </div>
 
-        {/* Controls */}
-        <div className="flex items-center gap-4">
+        {/* Right: speed slider + start/stop + clear + nav */}
+        <div className="flex items-center gap-2">
           {/* Speed slider */}
-          <div className="hidden items-center gap-3 sm:flex">
+          <div className="hidden items-center gap-2 sm:flex">
             <span className="font-mono text-xs text-muted">Fast</span>
             <input
               type="range"
@@ -229,7 +235,7 @@ export function LogStreamView() {
               onMouseUp={() => applyInterval(intervalMs)}
               onTouchEnd={() => applyInterval(intervalMs)}
               aria-label="Ingestion interval"
-              className="h-1 w-28 cursor-pointer appearance-none rounded-full bg-border accent-accent"
+              className="h-1 w-24 cursor-pointer appearance-none rounded-full bg-border accent-accent"
             />
             <span className="font-mono text-xs text-muted">Slow</span>
             <span className="font-mono text-xs tabular-nums text-muted">
@@ -240,7 +246,7 @@ export function LogStreamView() {
           {/* Start / Stop */}
           <button
             onClick={toggle}
-            className={`rounded-lg border px-4 py-1.5 font-mono text-xs font-semibold uppercase tracking-widest transition-all ${
+            className={`rounded-lg border px-3 py-1 font-mono text-xs font-semibold uppercase tracking-widest transition-all ${
               running
                 ? "border-secondary/50 bg-secondary/10 text-secondary hover:bg-secondary/20 glow-secondary"
                 : "border-accent/50 bg-accent/10 text-accent hover:bg-accent/20 glow-accent"
@@ -252,17 +258,14 @@ export function LogStreamView() {
           {/* Clear */}
           <button
             onClick={clearLogs}
-            className="rounded-lg border border-border px-3 py-1.5 font-mono text-xs uppercase tracking-widest text-muted transition-colors hover:border-muted hover:text-foreground"
+            className="rounded-lg border border-border px-3 py-1 font-mono text-xs uppercase tracking-widest text-muted transition-colors hover:border-muted hover:text-foreground"
           >
             Clear
           </button>
+
+          <AppNav />
         </div>
       </header>
-
-      {/* ── Nav bar ── */}
-      <div className="border-b border-border bg-surface/60 px-6 py-2">
-        <AppNav />
-      </div>
 
       <main className="flex flex-1 flex-col gap-4 p-6">
         {/* ── Metrics bar ── */}

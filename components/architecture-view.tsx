@@ -369,7 +369,7 @@ export function ArchitectureView() {
           <div className="glow-accent flex h-7 w-7 items-center justify-center rounded-lg border border-accent/60 bg-accent/10 font-mono text-xs font-bold text-accent" aria-hidden="true">
             AI
           </div>
-          <h1 className="hidden text-glow-accent font-mono text-sm font-semibold uppercase tracking-[0.2em] text-accent sm:block">
+          <h1 className="text-glow-accent font-mono text-sm font-semibold uppercase tracking-[0.2em] text-accent">
             RAG<span className="text-secondary text-glow-secondary">//</span>Architecture
           </h1>
         </div>

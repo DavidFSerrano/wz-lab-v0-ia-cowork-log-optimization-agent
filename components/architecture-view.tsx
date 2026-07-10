@@ -405,7 +405,7 @@ export function ArchitectureView() {
               RAG-powered log optimization &amp; insights
             </h2>
             <p className="max-w-2xl text-pretty leading-relaxed text-muted">
-              Raw logs from Kubernetes and AWS are chunked, embedded into vectors, and stored in Postgres. When you
+              Raw logs from any source are chunked, embedded into vectors, and stored in Postgres. When you
               ask a question, an SRE agent semantically searches that vector store, correlates evidence across
               systems, and produces a root-cause diagnosis. Two independent flows power the system: an{" "}
               <span className="text-accent">ingestion (write) path</span> and a{" "}

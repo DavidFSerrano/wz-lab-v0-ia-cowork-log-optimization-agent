@@ -147,8 +147,8 @@ function Section({
   children: ReactNode
 }) {
   return (
-    <section className="flex flex-col gap-5">
-      <div className="flex flex-col gap-1">
+    <section className="flex flex-col gap-6">
+      <div className="flex flex-col gap-2">
         <span className="font-mono text-xs uppercase tracking-[0.3em] text-accent text-glow-accent">{eyebrow}</span>
         <h2 className="text-pretty text-xl font-semibold tracking-tight text-foreground sm:text-2xl">{title}</h2>
       </div>
@@ -171,7 +171,7 @@ function ConceptCard({
   const ring = tone === "accent" ? "border-accent/40 text-accent" : "border-secondary/40 text-secondary"
   const glow = tone === "accent" ? "glow-accent" : "glow-secondary"
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface/70 p-4 backdrop-blur-sm">
+    <div className="flex flex-col gap-4 rounded-2xl border border-border bg-surface/70 p-5 backdrop-blur-sm">
       <div className="flex items-center gap-3">
         <div
           className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border bg-background/60 font-mono text-lg font-bold ${ring} ${glow}`}
@@ -220,12 +220,12 @@ function StageCard({
 }) {
   return (
     <div
-      className={`relative min-w-0 flex-1 rounded-2xl border border-border bg-surface/70 p-4 backdrop-blur-sm transition-all ${ACCENT_HOVER[accent]}`}
+      className={`relative flex min-w-0 flex-1 flex-col justify-center rounded-2xl border border-border bg-surface/70 p-5 backdrop-blur-sm transition-all lg:aspect-square ${ACCENT_HOVER[accent]}`}
     >
       <span className="absolute -top-2.5 left-4 rounded-md border border-border bg-background px-1.5 font-mono text-[10px] font-semibold text-muted">
         {String(index).padStart(2, "0")}
       </span>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col items-center gap-3 text-center">
         <div
           className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border bg-background/60 ${ACCENT_RING[accent]} ${ACCENT_GLOW[accent]}`}
         >
@@ -238,14 +238,14 @@ function StageCard({
           ) : null}
         </div>
       </div>
-      <div className="mt-3 text-sm leading-relaxed text-muted">{children}</div>
+      <div className="mt-4 text-center text-sm leading-relaxed text-muted">{children}</div>
     </div>
   )
 }
 
 // Connector: animated flowing dashes. Horizontal on lg, vertical on mobile.
 function Flow({ children }: { children: ReactNode }) {
-  return <div className="flex flex-col items-stretch gap-3 lg:flex-row lg:items-center">{children}</div>
+  return <div className="flex flex-col items-stretch gap-3 lg:flex-row lg:items-stretch">{children}</div>
 }
 
 function FlowArrow({ accent = "accent" }: { accent?: Accent }) {
@@ -490,9 +490,9 @@ export function ArchitectureView() {
       </header>
 
         <div className="flex-1 overflow-y-auto">
-          <div className="mx-auto flex w-full max-w-5xl flex-col gap-14 px-4 py-6">
+          <div className="mx-auto flex w-full max-w-5xl flex-col gap-20 px-4 py-10 sm:px-6 sm:py-14">
           {/* Intro */}
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             <span className="font-mono text-xs uppercase tracking-[0.3em] text-secondary text-glow-secondary">
               How it works
             </span>
@@ -562,7 +562,7 @@ export function ArchitectureView() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="rounded-2xl border border-secondary/30 bg-secondary/5 p-5">
                 <p className="mb-3 font-mono text-xs uppercase tracking-wider text-secondary">Compression techniques</p>
-                <ul className="flex flex-col gap-1.5 text-sm leading-relaxed text-muted">
+                <ul className="flex flex-col gap-2.5 text-sm leading-relaxed text-muted">
                   {[
                     "Strip comment / header / metric rows",
                     "Health-check & probe line removal",
@@ -603,32 +603,33 @@ export function ArchitectureView() {
 
           {/* Ingestion pipeline */}
           <Section eyebrow="Write path" title="Ingestion pipeline">
+            <div className="relative left-1/2 w-screen max-w-[1500px] -translate-x-1/2 px-6">
             <Flow>
               <StageCard index={1} icon={<SourcesIcon />} title="Log sources" code="k8s · aws · web">
-                Anything can POST logs — raw text, NDJSON, JSON arrays, or CloudTrail records.
+                Any format — text, NDJSON, JSON, CloudTrail.
               </StageCard>
               <FlowArrow />
               <StageCard index={2} icon={<IngestIcon />} title="Ingest endpoint" code="POST /api/ingest">
-                Auto-detects the payload shape and normalizes metadata (source, service, environment).
+                Detects payload shape, normalizes metadata.
               </StageCard>
               <FlowArrow />
               <StageCard index={3} icon={<OptimizeIcon />} title="Optimize" code="optimizeRaw()">
-                Collapses duplicate spam, strips noise, and redacts secrets{" "}
-                <span className="text-foreground">before</span> tokenizing — fewer tokens, same signal.
+                Dedupes, strips noise, redacts secrets.
               </StageCard>
               <FlowArrow />
               <StageCard index={4} icon={<ChunkIcon />} title="Chunk" code="chunkDocument()">
-                Splits logs into semantic chunks, tagging each with a timestamp and severity level.
+                Splits into semantic, tagged chunks.
               </StageCard>
               <FlowArrow />
               <StageCard index={5} icon={<EmbedIcon />} title="Embed" code="text-embedding-3-small">
-                Batches chunks through <span className="text-accent">embedMany</span> to produce 1536-dimensional vectors.
+                <span className="text-accent">embedMany</span> → 1536-dim vectors.
               </StageCard>
               <FlowArrow />
               <StageCard index={6} icon={<DatabaseIcon />} title="Store" code="Neon · pgvector">
-                Persists chunk + vector + metadata into the <span className="font-mono">log_chunks</span> table.
+                Persists to <span className="font-mono">log_chunks</span>.
               </StageCard>
             </Flow>
+            </div>
           </Section>
 
           {/* Optimize */}

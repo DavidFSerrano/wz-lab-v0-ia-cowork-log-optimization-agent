@@ -161,6 +161,11 @@ const ACCENT_GLOW: Record<Accent, string> = {
   secondary: "glow-secondary",
   alert: "",
 }
+const ACCENT_HOVER: Record<Accent, string> = {
+  accent: "hover:border-accent/50 hover:shadow-[0_0_24px_-10px_theme(colors.accent)]",
+  secondary: "hover:border-secondary/50 hover:shadow-[0_0_24px_-10px_theme(colors.secondary)]",
+  alert: "hover:border-alert/50 hover:shadow-[0_0_24px_-10px_theme(colors.alert)]",
+}
 
 function StageCard({
   index,
@@ -178,7 +183,9 @@ function StageCard({
   accent?: Accent
 }) {
   return (
-    <div className="relative min-w-0 flex-1 rounded-2xl border border-border bg-surface/70 p-4 backdrop-blur-sm transition-all hover:border-accent/50 hover:shadow-[0_0_24px_-10px_theme(colors.accent)]">
+    <div
+      className={`relative min-w-0 flex-1 rounded-2xl border border-border bg-surface/70 p-4 backdrop-blur-sm transition-all ${ACCENT_HOVER[accent]}`}
+    >
       <span className="absolute -top-2.5 left-4 rounded-md border border-border bg-background px-1.5 font-mono text-[10px] font-semibold text-muted">
         {String(index).padStart(2, "0")}
       </span>
@@ -420,7 +427,8 @@ export function ArchitectureView() {
               <span className="text-accent">Retrieval-Augmented Generation</span>. Instead of asking a language model
               to answer from memory alone, you first <span className="text-foreground">retrieve</span> the most
               relevant facts from your own data, feed them to the model as context, and let it{" "}
-              <span className="text-foreground">generate</span> an answer grounded in that evidence. For this app, the
+              <span className="text-foreground">generate</span>{" "}
+              an answer grounded in that evidence. For this app, the
               &quot;data&quot; is your logs — so the agent answers with real log lines instead of guessing.
             </p>
             <div className="grid gap-4 sm:grid-cols-3">
@@ -436,7 +444,8 @@ export function ArchitectureView() {
             </div>
             <p className="max-w-2xl text-pretty text-sm leading-relaxed text-muted">
               Why it matters here: logs are huge, constantly changing, and never part of a model&apos;s training data.
-              RAG lets the agent reason over <span className="text-foreground">your</span> live logs, cite exact lines,
+              RAG lets the agent reason over <span className="text-foreground">your</span>{" "}
+              live logs, cite exact lines,
               and avoid hallucinating incidents that didn&apos;t happen.
             </p>
           </Section>
@@ -493,11 +502,12 @@ export function ArchitectureView() {
                 <p className="mb-3 font-mono text-xs uppercase tracking-wider text-accent">log_chunks schema</p>
                 <pre className="overflow-x-auto rounded-lg bg-background/70 p-3 font-mono text-[11px] leading-relaxed text-muted">
 {`id          bigserial
-source      text          -- k8s | aws | web
+source      text          -- e.g. k8s, aws, web
 service     text
 environment text
 severity    text          -- error|warn|info
-event_time  timestamptz
+event_time  timestamptz   -- from the log
+created_at  timestamptz   -- when ingested
 content     text          -- the chunk
 embedding   vector(1536)  -- pgvector`}
                 </pre>

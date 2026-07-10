@@ -10,8 +10,10 @@
   --color-border: #2a2f3a;
   --color-foreground: #e7e9ee;
   --color-muted: #8b93a1;
-  --color-accent: #8a3ffc;
+  --color-accent: #3b82f6;
   --color-accent-foreground: #ffffff;
+  --color-alert: #f59e0b;
+  --color-alert-foreground: #1a1206;
 }
 
 html {

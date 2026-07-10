@@ -5,12 +5,34 @@ import { DefaultChatTransport } from "ai"
 import { useEffect, useRef, useState } from "react"
 import { ChatMessage, TypingIndicator } from "./chat-message"
 
+const INCIDENT_TAGS = ["service: orders-api", "env: prod", "cluster: EKS", "severity: SEV-2"]
+
 const SUGGESTIONS = [
   "orders-api pods are in CrashLoopBackOff in prod. What's the root cause?",
   "Walk me through a timeline of the orders-api incident across all logs",
   "Is the Aurora database the cause of the orders-api outage?",
   "What changed right before orders-api started crashing?",
 ]
+
+function AlertIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
+      <line x1="12" y1="9" x2="12" y2="13" />
+      <line x1="12" y1="17" x2="12.01" y2="17" />
+    </svg>
+  )
+}
 
 export function Chat() {
   const { messages, sendMessage, status, stop, error } = useChat({
@@ -47,28 +69,54 @@ export function Chat() {
       {/* Header */}
       <header className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2.5">
-          <div className="h-2.5 w-2.5 rounded-full bg-accent" aria-hidden="true" />
-          <h1 className="text-sm font-semibold tracking-tight">Assistant</h1>
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-xs font-bold text-accent-foreground" aria-hidden="true">
+            AI
+          </div>
+          <h1 className="text-sm font-semibold tracking-tight">AI Powered Logs Insights</h1>
         </div>
-        <span className="font-mono text-xs text-muted">gpt-5.1-instant</span>
+        <span className="flex items-center gap-1.5 rounded-full border border-alert/30 bg-alert/10 px-2.5 py-1 text-xs font-medium text-alert">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-alert" aria-hidden="true" />
+          Incident active
+        </span>
       </header>
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 px-4 py-6">
           {isEmpty ? (
-            <div className="flex flex-col items-center gap-6 py-16 text-center">
-              <div
-                aria-hidden="true"
-                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent text-lg font-semibold text-accent-foreground"
-              >
-                AI
-              </div>
-              <div className="space-y-1.5">
-                <h2 className="text-xl font-semibold text-balance">SRE incident assistant</h2>
-                <p className="text-sm text-muted text-pretty">
-                  I can read the Kubernetes and AWS logs in this repo and correlate them to find root cause.
-                </p>
+            <div className="flex flex-col gap-6 py-12">
+              <div className="rounded-2xl border border-alert/30 bg-alert/10 p-5">
+                <div className="flex items-start gap-3">
+                  <div
+                    aria-hidden="true"
+                    className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-alert text-alert-foreground"
+                  >
+                    <AlertIcon />
+                  </div>
+                  <div className="space-y-2">
+                    <h2 className="text-base font-semibold text-balance">There&apos;s an active production incident</h2>
+                    <p className="text-sm text-muted text-pretty">
+                      Since ~02:14 UTC, <span className="font-medium text-foreground">orders-api</span> in the{" "}
+                      <span className="font-medium text-foreground">prod</span> EKS cluster is degraded. New pods are
+                      stuck in <span className="font-medium text-foreground">CrashLoopBackOff</span> and older replicas
+                      are failing readiness probes, so the service is effectively down.
+                    </p>
+                    <p className="text-sm text-muted text-pretty">
+                      I&apos;ve got access to the relevant Kubernetes and AWS logs. I can help you correlate them and
+                      pin down the root cause — just ask, or start with one of the prompts below.
+                    </p>
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {INCIDENT_TAGS.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-md border border-border bg-surface px-2 py-0.5 font-mono text-xs text-muted"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
               <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
                 {SUGGESTIONS.map((s) => (

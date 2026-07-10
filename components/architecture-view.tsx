@@ -147,8 +147,8 @@ function Section({
   children: ReactNode
 }) {
   return (
-    <section className="flex flex-col gap-5">
-      <div className="flex flex-col gap-1">
+    <section className="flex flex-col gap-6">
+      <div className="flex flex-col gap-2">
         <span className="font-mono text-xs uppercase tracking-[0.3em] text-accent text-glow-accent">{eyebrow}</span>
         <h2 className="text-pretty text-xl font-semibold tracking-tight text-foreground sm:text-2xl">{title}</h2>
       </div>
@@ -171,7 +171,7 @@ function ConceptCard({
   const ring = tone === "accent" ? "border-accent/40 text-accent" : "border-secondary/40 text-secondary"
   const glow = tone === "accent" ? "glow-accent" : "glow-secondary"
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface/70 p-4 backdrop-blur-sm">
+    <div className="flex flex-col gap-4 rounded-2xl border border-border bg-surface/70 p-5 backdrop-blur-sm">
       <div className="flex items-center gap-3">
         <div
           className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border bg-background/60 font-mono text-lg font-bold ${ring} ${glow}`}
@@ -220,7 +220,7 @@ function StageCard({
 }) {
   return (
     <div
-      className={`relative flex min-w-0 flex-1 flex-col justify-center rounded-2xl border border-border bg-surface/70 p-4 backdrop-blur-sm transition-all lg:aspect-square ${ACCENT_HOVER[accent]}`}
+      className={`relative flex min-w-0 flex-1 flex-col justify-center rounded-2xl border border-border bg-surface/70 p-5 backdrop-blur-sm transition-all lg:aspect-square ${ACCENT_HOVER[accent]}`}
     >
       <span className="absolute -top-2.5 left-4 rounded-md border border-border bg-background px-1.5 font-mono text-[10px] font-semibold text-muted">
         {String(index).padStart(2, "0")}
@@ -238,7 +238,7 @@ function StageCard({
           ) : null}
         </div>
       </div>
-      <div className="mt-3 text-center text-sm leading-relaxed text-muted">{children}</div>
+      <div className="mt-4 text-center text-sm leading-relaxed text-muted">{children}</div>
     </div>
   )
 }
@@ -490,9 +490,9 @@ export function ArchitectureView() {
       </header>
 
         <div className="flex-1 overflow-y-auto">
-          <div className="mx-auto flex w-full max-w-5xl flex-col gap-14 px-4 py-6">
+          <div className="mx-auto flex w-full max-w-5xl flex-col gap-20 px-4 py-10 sm:px-6 sm:py-14">
           {/* Intro */}
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             <span className="font-mono text-xs uppercase tracking-[0.3em] text-secondary text-glow-secondary">
               How it works
             </span>
@@ -562,7 +562,7 @@ export function ArchitectureView() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="rounded-2xl border border-secondary/30 bg-secondary/5 p-5">
                 <p className="mb-3 font-mono text-xs uppercase tracking-wider text-secondary">Compression techniques</p>
-                <ul className="flex flex-col gap-1.5 text-sm leading-relaxed text-muted">
+                <ul className="flex flex-col gap-2.5 text-sm leading-relaxed text-muted">
                   {[
                     "Strip comment / header / metric rows",
                     "Health-check & probe line removal",

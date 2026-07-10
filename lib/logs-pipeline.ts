@@ -128,6 +128,25 @@ export async function ingestDocument(doc: LogDocument) {
   return { chunks: chunks.length }
 }
 
+// Most recently ingested chunks, newest first — powers the live feed.
+export async function recentLogs(opts: { limit?: number; afterId?: number } = {}): Promise<RetrievedChunk[]> {
+  const limit = Math.min(opts.limit ?? 50, 200)
+  const afterId = opts.afterId ?? null
+
+  const rows = (await sql`
+    select
+      id, source, service, environment, severity,
+      event_time, content,
+      0 as distance
+    from log_chunks
+    where (${afterId}::bigint is null or id > ${afterId}::bigint)
+    order by id desc
+    limit ${limit}
+  `) as RetrievedChunk[]
+
+  return rows
+}
+
 // Hybrid retrieval: optional metadata/time filters + vector similarity.
 export async function searchLogs(opts: {
   query: string

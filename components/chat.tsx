@@ -3,6 +3,7 @@
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
 import { useEffect, useRef, useState } from "react"
+import Link from "next/link"
 import { ChatMessage, TypingIndicator } from "./chat-message"
 
 const INCIDENT_TAGS = ["service: orders-api", "env: prod", "cluster: EKS", "severity: SEV-2"]
@@ -74,10 +75,18 @@ export function Chat() {
           </div>
           <h1 className="text-sm font-semibold tracking-tight">AI Powered Logs Insights</h1>
         </div>
-        <span className="flex items-center gap-1.5 rounded-full border border-alert/30 bg-alert/10 px-2.5 py-1 text-xs font-medium text-alert">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-alert" aria-hidden="true" />
-          Incident active
-        </span>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/logs"
+            className="rounded-lg border border-border px-3 py-1 text-xs font-medium text-foreground transition-colors hover:border-accent"
+          >
+            Live logs
+          </Link>
+          <span className="flex items-center gap-1.5 rounded-full border border-alert/30 bg-alert/10 px-2.5 py-1 text-xs font-medium text-alert">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-alert" aria-hidden="true" />
+            Incident active
+          </span>
+        </div>
       </header>
 
       {/* Messages */}

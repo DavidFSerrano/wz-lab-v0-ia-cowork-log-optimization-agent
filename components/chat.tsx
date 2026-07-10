@@ -104,7 +104,7 @@ export function Chat() {
             <button
               type="button"
               onClick={backToDashboard}
-              className="flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent"
+              className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent"
             >
               <BackIcon />
               Incidents

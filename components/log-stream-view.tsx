@@ -246,7 +246,7 @@ export function LogStreamView() {
           {/* Start / Stop */}
           <button
             onClick={toggle}
-            className={`rounded-lg border px-3 py-1 font-mono text-xs font-semibold uppercase tracking-widest transition-all ${
+            className={`rounded-lg border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider transition-all ${
               running
                 ? "border-secondary/50 bg-secondary/10 text-secondary hover:bg-secondary/20 glow-secondary"
                 : "border-accent/50 bg-accent/10 text-accent hover:bg-accent/20 glow-accent"
@@ -258,7 +258,7 @@ export function LogStreamView() {
           {/* Clear */}
           <button
             onClick={clearLogs}
-            className="rounded-lg border border-border px-3 py-1 font-mono text-xs uppercase tracking-widest text-muted transition-colors hover:border-muted hover:text-foreground"
+            className="rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent"
           >
             Clear
           </button>

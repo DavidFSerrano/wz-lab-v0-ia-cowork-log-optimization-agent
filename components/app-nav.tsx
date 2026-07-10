@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -12,24 +11,6 @@ const NAV_LINKS = [
   { href: "/stream",       label: "Stream"       },
   { href: "/architecture", label: "Architecture" },
 ]
-
-/** Top banner — logo only. Render this above each page's header. */
-export function AppBanner() {
-  return (
-    <div className="border-b border-border bg-surface/80 px-6 py-3 backdrop-blur-sm">
-      <Link href="/" aria-label="ExampleCorp — go to chat" className="inline-block">
-        <Image
-          src="/examplecorp-logo.png"
-          alt="ExampleCorp Log Optimization Agent"
-          width={220}
-          height={52}
-          priority
-          className="h-10 w-auto object-contain"
-        />
-      </Link>
-    </div>
-  )
-}
 
 /** Nav pill row — all route links with active-state highlight. */
 export function AppNav() {

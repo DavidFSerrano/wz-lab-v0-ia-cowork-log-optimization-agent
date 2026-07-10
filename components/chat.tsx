@@ -5,7 +5,9 @@ import { DefaultChatTransport } from "ai"
 import { useEffect, useRef, useState } from "react"
 import { ChatMessage, TypingIndicator } from "./chat-message"
 import { IncidentDashboard, type Incident } from "./incident-dashboard"
-import { AppNav, AppBanner } from "./app-nav"
+import Image from "next/image"
+import Link from "next/link"
+import { AppNav } from "./app-nav"
 
 function suggestionsFor(inc: Incident): string[] {
   const svc = inc.service ?? "the service"
@@ -97,10 +99,12 @@ export function Chat() {
 
   return (
     <div className="flex h-dvh flex-col">
-      <AppBanner />
       {/* Header */}
       <header className="flex items-center justify-between border-b border-accent/20 bg-surface/60 px-4 py-3 backdrop-blur-sm">
         <div className="flex min-w-0 items-center gap-2.5">
+          <Link href="/" aria-label="ExampleCorp — go to chat" className="shrink-0">
+            <Image src="/examplecorp-logo.png" alt="ExampleCorp Log Optimization Agent" width={160} height={38} priority className="h-8 w-auto object-contain" />
+          </Link>
           {incident && (
             <button
               type="button"

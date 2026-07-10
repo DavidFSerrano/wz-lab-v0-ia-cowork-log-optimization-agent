@@ -58,24 +58,44 @@ function severityFor(errorCount: number): Incident["severity"] {
   return "warn"
 }
 
+// Keyword patterns kept in sync with classifySeverity() in logs-pipeline.ts.
+// Used here to count error/warn *lines* within each chunk (a single ingested
+// payload is often packed into one chunk, so line-level counting is what makes
+// a realistic multi-line error dump cross the incident threshold).
+const ERROR_LINE_RE = "(error|fatal|exception|accessdenied|access denied|crashloopbackoff|failed|denied|exit code [1-9])"
+const WARN_LINE_RE = "(warn|warning|backoff|unhealthy|retry|throttl)"
+
 // Group recent error/warn chunks into candidate clusters.
 async function findClusters(): Promise<Cluster[]> {
   const rows = (await sql`
+    with scored as (
+      select
+        coalesce(service, 'unknown')     as service,
+        coalesce(environment, 'unknown') as environment,
+        source,
+        event_time,
+        content,
+        (select count(*) from regexp_split_to_table(content, E'\n') as l(t)
+           where t ~* ${ERROR_LINE_RE}) as err_lines,
+        (select count(*) from regexp_split_to_table(content, E'\n') as l(t)
+           where t ~* ${WARN_LINE_RE})  as warn_lines
+      from log_chunks
+      where severity in ('error', 'warn')
+        and created_at >= now() - ${RECENT_WINDOW}::interval
+    )
     select
-      coalesce(service, 'unknown')      as service,
-      coalesce(environment, 'unknown')  as environment,
-      count(*) filter (where severity = 'error') as error_count,
-      count(*) filter (where severity = 'warn')  as warn_count,
+      service,
+      environment,
+      sum(err_lines)::int  as error_count,
+      sum(warn_lines)::int as warn_count,
       min(event_time) as first_seen,
       max(event_time) as last_seen,
-      array_agg(distinct source)        as sources,
+      array_agg(distinct source) as sources,
       (array_agg(content order by event_time desc)
-        filter (where severity = 'error'))[1] as sample_log
-    from log_chunks
-    where severity in ('error', 'warn')
-      and created_at >= now() - ${RECENT_WINDOW}::interval
+        filter (where err_lines > 0))[1] as sample_log
+    from scored
     group by 1, 2
-    having count(*) filter (where severity = 'error') >= ${MIN_ERRORS}
+    having sum(err_lines) >= ${MIN_ERRORS}
   `) as Array<{
     service: string
     environment: string

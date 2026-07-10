@@ -1,8 +1,6 @@
 "use client"
 
 import { useCallback, useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
 import { AppNav } from "./app-nav"
 
 // ─── Sample log ───────────────────────────────────────────────────────────────
@@ -171,9 +169,15 @@ export function LogCompressorView() {
       {/* Header */}
       <header className="flex items-center justify-between border-b border-accent/20 bg-surface/60 px-4 py-3 backdrop-blur-sm">
         <div className="flex min-w-0 items-center gap-2.5">
-          <Link href="/" aria-label="ExampleCorp — go to chat" className="shrink-0">
-            <Image src="/examplecorp-logo.png" alt="ExampleCorp Log Optimization Agent" width={160} height={38} priority className="h-8 w-auto object-contain" />
-          </Link>
+          <div
+            className="glow-accent flex h-7 w-7 items-center justify-center rounded-lg border border-accent/60 bg-accent/10 font-mono text-xs font-bold text-accent"
+            aria-hidden="true"
+          >
+            CZ
+          </div>
+          <h1 className="text-glow-accent font-mono text-sm font-semibold uppercase tracking-[0.2em] text-accent">
+            Log<span className="text-secondary text-glow-secondary">//</span>Compressor
+          </h1>
         </div>
         <AppNav />
       </header>

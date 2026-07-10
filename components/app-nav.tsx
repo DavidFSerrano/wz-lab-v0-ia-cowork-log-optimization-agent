@@ -12,7 +12,6 @@ const NAV_LINKS = [
   { href: "/architecture", label: "Architecture" },
 ]
 
-/** Nav pill row — all route links with active-state highlight. */
 export function AppNav() {
   const pathname = usePathname()
 

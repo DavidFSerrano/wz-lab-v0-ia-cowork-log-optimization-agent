@@ -5,8 +5,6 @@ import { DefaultChatTransport } from "ai"
 import { useEffect, useRef, useState } from "react"
 import { ChatMessage, TypingIndicator } from "./chat-message"
 import { IncidentDashboard, type Incident } from "./incident-dashboard"
-import Image from "next/image"
-import Link from "next/link"
 import { AppNav } from "./app-nav"
 
 function suggestionsFor(inc: Incident): string[] {
@@ -102,10 +100,7 @@ export function Chat() {
       {/* Header */}
       <header className="flex items-center justify-between border-b border-accent/20 bg-surface/60 px-4 py-3 backdrop-blur-sm">
         <div className="flex min-w-0 items-center gap-2.5">
-          <Link href="/" aria-label="ExampleCorp — go to chat" className="shrink-0">
-            <Image src="/examplecorp-logo.png" alt="ExampleCorp Log Optimization Agent" width={160} height={38} priority className="h-8 w-auto object-contain" />
-          </Link>
-          {incident && (
+          {incident ? (
             <button
               type="button"
               onClick={backToDashboard}
@@ -114,6 +109,15 @@ export function Chat() {
               <BackIcon />
               Incidents
             </button>
+          ) : (
+            <>
+              <div className="glow-accent flex h-7 w-7 items-center justify-center rounded-lg border border-accent/60 bg-accent/10 font-mono text-xs font-bold text-accent" aria-hidden="true">
+                AI
+              </div>
+              <h1 className="text-glow-accent font-mono text-sm font-semibold uppercase tracking-[0.2em] text-accent">
+                Logs<span className="text-secondary text-glow-secondary">//</span>Insights
+              </h1>
+            </>
           )}
         </div>
         <div className="flex items-center gap-2">

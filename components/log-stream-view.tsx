@@ -1,8 +1,6 @@
 "use client"
 
 import { useEffect, useRef, useState, useCallback } from "react"
-import Image from "next/image"
-import Link from "next/link"
 import { AppNav } from "./app-nav"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -194,9 +192,6 @@ export function LogStreamView() {
       {/* ── Header ── */}
       <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-surface/80 px-6 py-4 backdrop-blur-sm">
         <div className="flex items-center gap-3">
-          <Link href="/" aria-label="ExampleCorp — go to chat" className="shrink-0">
-            <Image src="/examplecorp-logo.png" alt="ExampleCorp Log Optimization Agent" width={160} height={38} priority className="h-8 w-auto object-contain" />
-          </Link>
           {/* Live indicator */}
           <span className="relative flex h-2.5 w-2.5">
             {running && (

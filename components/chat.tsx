@@ -5,6 +5,8 @@ import { DefaultChatTransport } from "ai"
 import { useEffect, useRef, useState } from "react"
 import { ChatMessage, TypingIndicator } from "./chat-message"
 
+const INCIDENT_TAGS = ["service: orders-api", "env: prod", "cluster: EKS", "severity: SEV-2"]
+
 const SUGGESTIONS = [
   "orders-api pods are in CrashLoopBackOff in prod. What's the root cause?",
   "Walk me through a timeline of the orders-api incident across all logs",
@@ -91,12 +93,28 @@ export function Chat() {
                   >
                     <AlertIcon />
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-2">
                     <h2 className="text-base font-semibold text-balance">There&apos;s an active production incident</h2>
                     <p className="text-sm text-muted text-pretty">
-                      I&apos;ve got access to the relevant Kubernetes and AWS logs. I can help you investigate and
+                      Since ~02:14 UTC, <span className="font-medium text-foreground">orders-api</span> in the{" "}
+                      <span className="font-medium text-foreground">prod</span> EKS cluster is degraded. New pods are
+                      stuck in <span className="font-medium text-foreground">CrashLoopBackOff</span> and older replicas
+                      are failing readiness probes, so the service is effectively down.
+                    </p>
+                    <p className="text-sm text-muted text-pretty">
+                      I&apos;ve got access to the relevant Kubernetes and AWS logs. I can help you correlate them and
                       pin down the root cause — just ask, or start with one of the prompts below.
                     </p>
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {INCIDENT_TAGS.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-md border border-border bg-surface px-2 py-0.5 font-mono text-xs text-muted"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>

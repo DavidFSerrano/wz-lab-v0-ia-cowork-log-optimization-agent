@@ -3,6 +3,26 @@
 Read this first. It gets you productive on this codebase quickly and lists the
 non-obvious gotchas that will bite you if you skip it.
 
+## ⛔ DO NOT TOUCH THE RAG PIPELINE
+
+**The RAG pipeline is frozen. Do not modify it under any circumstances unless the
+user explicitly and specifically asks you to change the pipeline itself.**
+
+This includes ingestion, chunking, embedding, vector storage, retrieval, and the
+`searchLogs` tool. Concretely, treat these as **read-only**:
+
+- `lib/logs-pipeline.ts` (chunk / embed / ingest / searchLogs / recentLogs)
+- `lib/db.ts` (Neon client + `RetrievedChunk` type)
+- `app/api/ingest/route.ts` (ingestion endpoint + payload parsing)
+- The `searchLogs` tool definition and retrieval logic in `app/api/chat/route.ts`
+- The `log_chunks` schema and `scripts/setup-schema.mjs`
+- The embedding model / dimension (`text-embedding-3-small`, 1536)
+
+You MAY still work freely on UI, styling, pages, and non-pipeline features. If a
+requested change seems to require touching the pipeline, **stop and ask the user
+first** — describe what pipeline change would be needed and get explicit
+confirmation before editing any of the files above.
+
 ## What this app is
 
 An **AI log-analysis / incident-troubleshooting assistant** for SRE/DevOps.

@@ -121,6 +121,34 @@ function Section({
   )
 }
 
+function ConceptCard({
+  letter,
+  term,
+  tone,
+  children,
+}: {
+  letter: string
+  term: string
+  tone: "accent" | "secondary"
+  children: ReactNode
+}) {
+  const ring = tone === "accent" ? "border-accent/40 text-accent" : "border-secondary/40 text-secondary"
+  const glow = tone === "accent" ? "glow-accent" : "glow-secondary"
+  return (
+    <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface/70 p-4 backdrop-blur-sm">
+      <div className="flex items-center gap-3">
+        <div
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border bg-background/60 font-mono text-lg font-bold ${ring} ${glow}`}
+        >
+          {letter}
+        </div>
+        <h3 className="text-base font-semibold text-foreground">{term}</h3>
+      </div>
+      <p className="text-sm leading-relaxed text-muted">{children}</p>
+    </div>
+  )
+}
+
 type Accent = "accent" | "secondary" | "alert"
 
 const ACCENT_RING: Record<Accent, string> = {
@@ -384,6 +412,34 @@ export function ArchitectureView() {
               <span className="text-secondary">retrieval (read) path</span>.
             </p>
           </div>
+
+          {/* What is RAG */}
+          <Section eyebrow="Start here" title="What is RAG?">
+            <p className="max-w-2xl text-pretty leading-relaxed text-muted">
+              <span className="text-foreground">RAG</span> stands for{" "}
+              <span className="text-accent">Retrieval-Augmented Generation</span>. Instead of asking a language model
+              to answer from memory alone, you first <span className="text-foreground">retrieve</span> the most
+              relevant facts from your own data, feed them to the model as context, and let it{" "}
+              <span className="text-foreground">generate</span> an answer grounded in that evidence. For this app, the
+              &quot;data&quot; is your logs — so the agent answers with real log lines instead of guessing.
+            </p>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <ConceptCard letter="R" term="Retrieve" tone="accent">
+                Turn the question into a vector and pull the closest-matching log chunks from the vector database.
+              </ConceptCard>
+              <ConceptCard letter="A" term="Augment" tone="secondary">
+                Inject those retrieved chunks into the model&apos;s prompt as grounding context.
+              </ConceptCard>
+              <ConceptCard letter="G" term="Generate" tone="accent">
+                The model writes a root-cause answer citing the evidence — not from memory.
+              </ConceptCard>
+            </div>
+            <p className="max-w-2xl text-pretty text-sm leading-relaxed text-muted">
+              Why it matters here: logs are huge, constantly changing, and never part of a model&apos;s training data.
+              RAG lets the agent reason over <span className="text-foreground">your</span> live logs, cite exact lines,
+              and avoid hallucinating incidents that didn&apos;t happen.
+            </p>
+          </Section>
 
           {/* Ingestion pipeline */}
           <Section eyebrow="Write path" title="Ingestion pipeline">

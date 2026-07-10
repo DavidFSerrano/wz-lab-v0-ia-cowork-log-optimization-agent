@@ -225,7 +225,7 @@ function StageCard({
       <span className="absolute -top-2.5 left-4 rounded-md border border-border bg-background px-1.5 font-mono text-[10px] font-semibold text-muted">
         {String(index).padStart(2, "0")}
       </span>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col items-center gap-3 text-center">
         <div
           className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border bg-background/60 ${ACCENT_RING[accent]} ${ACCENT_GLOW[accent]}`}
         >
@@ -238,7 +238,7 @@ function StageCard({
           ) : null}
         </div>
       </div>
-      <div className="mt-3 text-sm leading-relaxed text-muted">{children}</div>
+      <div className="mt-3 text-center text-sm leading-relaxed text-muted">{children}</div>
     </div>
   )
 }
@@ -603,27 +603,32 @@ export function ArchitectureView() {
 
           {/* Ingestion pipeline */}
           <Section eyebrow="Write path" title="Ingestion pipeline">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <Flow>
               <StageCard index={1} icon={<SourcesIcon />} title="Log sources" code="k8s · aws · web">
                 Anything can POST logs — raw text, NDJSON, JSON arrays, or CloudTrail records.
               </StageCard>
+              <FlowArrow />
               <StageCard index={2} icon={<IngestIcon />} title="Ingest endpoint" code="POST /api/ingest">
                 Auto-detects the payload shape and normalizes metadata (source, service, environment).
               </StageCard>
+              <FlowArrow />
               <StageCard index={3} icon={<OptimizeIcon />} title="Optimize" code="optimizeRaw()">
                 Collapses duplicate spam, strips noise, and redacts secrets{" "}
                 <span className="text-foreground">before</span> tokenizing — fewer tokens, same signal.
               </StageCard>
+              <FlowArrow />
               <StageCard index={4} icon={<ChunkIcon />} title="Chunk" code="chunkDocument()">
                 Splits logs into semantic chunks, tagging each with a timestamp and severity level.
               </StageCard>
+              <FlowArrow />
               <StageCard index={5} icon={<EmbedIcon />} title="Embed" code="text-embedding-3-small">
                 Batches chunks through <span className="text-accent">embedMany</span> to produce 1536-dimensional vectors.
               </StageCard>
+              <FlowArrow />
               <StageCard index={6} icon={<DatabaseIcon />} title="Store" code="Neon · pgvector">
                 Persists chunk + vector + metadata into the <span className="font-mono">log_chunks</span> table.
               </StageCard>
-            </div>
+            </Flow>
           </Section>
 
           {/* Optimize */}

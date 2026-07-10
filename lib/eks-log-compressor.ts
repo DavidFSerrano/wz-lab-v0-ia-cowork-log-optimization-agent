@@ -160,7 +160,7 @@ export function parseEksLog(raw: EksRawLog): CompressedEntry | null {
   const component =
     (obj.logger as string | undefined) ??
     (obj.component as string | undefined) ??
-    (obj.kubernetes?.container_name as string | undefined) ??
+    ((obj.kubernetes as Record<string, unknown> | undefined)?.container_name as string | undefined) ??
     (obj.source as string | undefined) ??
     ""
 

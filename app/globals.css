@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
+
+  --color-background: #0f1115;
+  --color-surface: #171a21;
+  --color-surface-2: #1e222b;
+  --color-border: #2a2f3a;
+  --color-foreground: #e7e9ee;
+  --color-muted: #8b93a1;
+  --color-accent: #8a3ffc;
+  --color-accent-foreground: #ffffff;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+/* subtle scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}

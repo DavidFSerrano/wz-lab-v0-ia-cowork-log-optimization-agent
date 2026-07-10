@@ -4,15 +4,22 @@
   --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
 
-  --color-background: #0f1115;
-  --color-surface: #171a21;
-  --color-surface-2: #1e222b;
-  --color-border: #2a2f3a;
-  --color-foreground: #e7e9ee;
-  --color-muted: #8b93a1;
-  --color-accent: #3b82f6;
-  --color-accent-foreground: #ffffff;
-  --color-alert: #f59e0b;
+  --color-background: #05060b;
+  --color-surface: #0c1018;
+  --color-surface-2: #131a26;
+  --color-border: #1f2b3d;
+  --color-foreground: #d6f7ff;
+  --color-muted: #6b8299;
+
+  /* neon cyan primary */
+  --color-accent: #00e5ff;
+  --color-accent-foreground: #03121a;
+
+  /* neon magenta secondary */
+  --color-secondary: #ff2e97;
+  --color-secondary-foreground: #1a0410;
+
+  --color-alert: #ffb300;
   --color-alert-foreground: #1a1206;
 }
 
@@ -23,10 +30,72 @@ html {
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
+  position: relative;
+}
+
+/* Cyberpunk grid backdrop + magenta/cyan glow wash */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 15% 0%, rgba(0, 229, 255, 0.1), transparent 45%),
+    radial-gradient(circle at 85% 100%, rgba(255, 46, 151, 0.09), transparent 45%),
+    linear-gradient(to right, rgba(31, 43, 61, 0.35) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(31, 43, 61, 0.35) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+}
+
+/* Faint moving scanlines for CRT feel */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 229, 255, 0.025) 0px,
+    rgba(0, 229, 255, 0.025) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  animation: scanline 8s linear infinite;
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(3px);
+  }
+}
+
+/* Keep app content above the backdrop layers */
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Neon glow helpers */
+.glow-accent {
+  box-shadow: 0 0 12px -2px rgba(0, 229, 255, 0.55), inset 0 0 4px rgba(0, 229, 255, 0.25);
+}
+.glow-secondary {
+  box-shadow: 0 0 12px -2px rgba(255, 46, 151, 0.55), inset 0 0 4px rgba(255, 46, 151, 0.25);
+}
+.text-glow-accent {
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.65);
+}
+.text-glow-secondary {
+  text-shadow: 0 0 8px rgba(255, 46, 151, 0.6);
 }
 
 /* subtle scrollbar */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-border) transparent;
+  scrollbar-color: var(--color-accent) transparent;
 }

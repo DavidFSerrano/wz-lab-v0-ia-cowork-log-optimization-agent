@@ -68,22 +68,24 @@ export function Chat() {
   return (
     <div className="flex h-dvh flex-col">
       {/* Header */}
-      <header className="flex items-center justify-between border-b border-border px-4 py-3">
+      <header className="flex items-center justify-between border-b border-accent/20 bg-surface/60 px-4 py-3 backdrop-blur-sm">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-xs font-bold text-accent-foreground" aria-hidden="true">
+          <div className="glow-accent flex h-7 w-7 items-center justify-center rounded-lg border border-accent/60 bg-accent/10 font-mono text-xs font-bold text-accent" aria-hidden="true">
             AI
           </div>
-          <h1 className="text-sm font-semibold tracking-tight">AI Powered Logs Insights</h1>
+          <h1 className="text-glow-accent font-mono text-sm font-semibold uppercase tracking-[0.2em] text-accent">
+            Logs<span className="text-secondary text-glow-secondary">//</span>Insights
+          </h1>
         </div>
         <div className="flex items-center gap-2">
           <Link
             href="/logs"
-            className="rounded-lg border border-border px-3 py-1 text-xs font-medium text-foreground transition-colors hover:border-accent"
+            className="rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent"
           >
             Live logs
           </Link>
-          <span className="flex items-center gap-1.5 rounded-full border border-alert/30 bg-alert/10 px-2.5 py-1 text-xs font-medium text-alert">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-alert" aria-hidden="true" />
+          <span className="flex items-center gap-1.5 rounded-full border border-alert/40 bg-alert/10 px-2.5 py-1 font-mono text-xs font-medium uppercase tracking-wider text-alert">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-alert shadow-[0_0_6px_theme(colors.alert)]" aria-hidden="true" />
             Incident active
           </span>
         </div>
@@ -94,16 +96,16 @@ export function Chat() {
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 px-4 py-6">
           {isEmpty ? (
             <div className="flex flex-col gap-6 py-12">
-              <div className="rounded-2xl border border-alert/30 bg-alert/10 p-5">
+              <div className="rounded-2xl border border-alert/40 bg-alert/5 p-5 shadow-[0_0_24px_-8px_theme(colors.alert)]">
                 <div className="flex items-start gap-3">
                   <div
                     aria-hidden="true"
-                    className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-alert text-alert-foreground"
+                    className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-alert/60 bg-alert/10 text-alert shadow-[0_0_12px_-2px_theme(colors.alert)]"
                   >
                     <AlertIcon />
                   </div>
                   <div className="space-y-2">
-                    <h2 className="text-base font-semibold text-balance">There&apos;s an active production incident</h2>
+                    <h2 className="font-mono text-base font-semibold uppercase tracking-wide text-alert text-balance">There&apos;s an active production incident</h2>
                     <p className="text-sm text-muted text-pretty">
                       Since ~02:14 UTC, <span className="font-medium text-foreground">orders-api</span> in the{" "}
                       <span className="font-medium text-foreground">prod</span> EKS cluster is degraded. New pods are
@@ -118,7 +120,7 @@ export function Chat() {
                       {INCIDENT_TAGS.map((tag) => (
                         <span
                           key={tag}
-                          className="rounded-md border border-border bg-surface px-2 py-0.5 font-mono text-xs text-muted"
+                          className="rounded-md border border-accent/30 bg-accent/5 px-2 py-0.5 font-mono text-xs text-accent"
                         >
                           {tag}
                         </span>
@@ -133,8 +135,9 @@ export function Chat() {
                     key={s}
                     type="button"
                     onClick={() => sendMessage({ text: s })}
-                    className="rounded-xl border border-border bg-surface px-4 py-3 text-left text-sm text-foreground transition-colors hover:border-accent hover:bg-surface-2"
+                    className="group rounded-xl border border-border bg-surface/60 px-4 py-3 text-left text-sm text-foreground transition-all hover:border-accent hover:bg-surface-2 hover:shadow-[0_0_16px_-4px_theme(colors.accent)]"
                   >
+                    <span className="mr-2 font-mono text-accent/70 transition-colors group-hover:text-accent" aria-hidden="true">&gt;</span>
                     {s}
                   </button>
                 ))}
@@ -158,13 +161,13 @@ export function Chat() {
       </div>
 
       {/* Composer */}
-      <div className="border-t border-border px-4 py-4">
+      <div className="border-t border-accent/20 bg-surface/60 px-4 py-4 backdrop-blur-sm">
         <form
           onSubmit={(e) => {
             e.preventDefault()
             submit()
           }}
-          className="mx-auto flex w-full max-w-2xl items-end gap-2 rounded-2xl border border-border bg-surface p-2 focus-within:border-accent"
+          className="mx-auto flex w-full max-w-2xl items-end gap-2 rounded-2xl border border-border bg-surface p-2 transition-shadow focus-within:border-accent focus-within:shadow-[0_0_18px_-4px_theme(colors.accent)]"
         >
           <textarea
             ref={textareaRef}
@@ -197,7 +200,7 @@ export function Chat() {
             <button
               type="submit"
               disabled={!input.trim()}
-              className="shrink-0 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-accent-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+              className="glow-accent shrink-0 rounded-xl bg-accent px-4 py-2 font-mono text-sm font-semibold uppercase tracking-wider text-accent-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
             >
               Send
             </button>

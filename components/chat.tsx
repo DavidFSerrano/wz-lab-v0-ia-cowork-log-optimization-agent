@@ -101,7 +101,7 @@ export function Chat() {
       {/* Header */}
       <header className="flex items-center justify-between border-b border-accent/20 bg-surface/60 px-4 py-3 backdrop-blur-sm">
         <div className="flex min-w-0 items-center gap-2.5">
-          {incident ? (
+          {incident && (
             <button
               type="button"
               onClick={backToDashboard}
@@ -110,15 +110,6 @@ export function Chat() {
               <BackIcon />
               Incidents
             </button>
-          ) : (
-            <>
-              <div className="glow-accent flex h-7 w-7 items-center justify-center rounded-lg border border-accent/60 bg-accent/10 font-mono text-xs font-bold text-accent" aria-hidden="true">
-                AI
-              </div>
-              <h1 className="text-glow-accent font-mono text-sm font-semibold uppercase tracking-[0.2em] text-accent">
-                Logs<span className="text-secondary text-glow-secondary">//</span>Insights
-              </h1>
-            </>
           )}
         </div>
         <div className="flex items-center gap-2">

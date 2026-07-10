@@ -1,5 +1,6 @@
 import { ingestDocument, type LogDocument } from "@/lib/logs-pipeline"
 import { detectIncidents } from "@/lib/incidents"
+import { optimizeRaw, mergeStats, type OptimizeStats } from "@/lib/log-optimizer"
 
 export const maxDuration = 60
 
@@ -109,6 +110,20 @@ export async function POST(req: Request) {
     )
   }
 
+  // Optimization pass: clean/compact/redact each raw payload BEFORE it enters
+  // the frozen chunk -> embed -> store pipeline. This cuts embedding tokens and
+  // noise while preserving diagnostic signal. Disable with ?optimize=false.
+  const optimize = new URL(req.url).searchParams.get("optimize") !== "false"
+  const optStats: OptimizeStats[] = []
+  if (optimize) {
+    docs = docs.map((doc) => {
+      const { optimized, stats } = optimizeRaw(doc.raw)
+      optStats.push(stats)
+      return { ...doc, raw: optimized }
+    })
+    docs = docs.filter((d) => d.raw.trim() !== "")
+  }
+
   try {
     let totalChunks = 0
     for (const doc of docs) {
@@ -125,7 +140,12 @@ export async function POST(req: Request) {
       console.log("[v0] incident detection error:", err instanceof Error ? err.message : err)
     }
 
-    return Response.json({ ok: true, documents: docs.length, chunks: totalChunks })
+    return Response.json({
+      ok: true,
+      documents: docs.length,
+      chunks: totalChunks,
+      optimization: optimize ? mergeStats(optStats) : null,
+    })
   } catch (err) {
     console.log("[v0] ingest error:", err instanceof Error ? err.message : err)
     return Response.json({ error: "Failed to ingest logs" }, { status: 500 })

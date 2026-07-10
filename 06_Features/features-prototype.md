@@ -49,4 +49,4 @@ Polished extras that satisfy seasoned SRE engineers checking for true CLI authen
 * **No Web SaaS Dashboards:** Ensure there are no floating charts, standard sidebars, or modern web buttons. The experience must live 100% inside the terminal canvas[cite: 1, 2, 3].
 * **Pre-Configured Scripting:** Have the test commands ready to copy-paste or pre-populate to ensure smooth timing during the live demo.
 * **Objection Handling Framework:** If leadership asks about connecting live infrastructure:
-  > *"Today this runs in a sandboxed simulator using an in-memory stream, but the architecture is explicitly designed to integrate natively with your live AWS CloudWatch log groups in Phase 2[cite: 1, 2]."*
+  > *"Today this runs in a sandboxed simulator using an in-memory stream, but the architecture is explicitly designed to integrate natively with your live AWS CloudWatch log groups in Phase 2."*

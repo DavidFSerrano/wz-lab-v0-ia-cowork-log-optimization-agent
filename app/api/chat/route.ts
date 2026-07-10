@@ -42,8 +42,8 @@ const searchLogsTool = tool({
           // Coerce Postgres Date to an ISO string — non-JSON values break the
           // ModelMessage schema when the tool output is fed back to the model.
           eventTime:
-            r.event_time instanceof Date
-              ? r.event_time.toISOString()
+            (r.event_time as unknown) instanceof Date
+              ? (r.event_time as unknown as Date).toISOString()
               : r.event_time,
           content: r.content,
           relevance: Number((1 - r.distance).toFixed(3)),

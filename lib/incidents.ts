@@ -65,37 +65,64 @@ function severityFor(errorCount: number): Incident["severity"] {
 const ERROR_LINE_RE = "(error|fatal|exception|accessdenied|access denied|crashloopbackoff|failed|denied|exit code [1-9])"
 const WARN_LINE_RE = "(warn|warning|backoff|unhealthy|retry|throttl)"
 
-// Group recent error/warn chunks into candidate clusters.
+// Generic collectors/firehoses whose metadata `service` is NOT a real service
+// (e.g. the live stream simulator ships everything as "stream-generator"). For
+// these, the meaningful service lives inside each log LINE, so we parse the
+// component name out of the line instead of grouping everything under the
+// collector. Real ingested logs (service=orders-api, etc.) are untouched.
+const GENERIC_COLLECTORS = ["stream-generator", "ingest"]
+
+// Pulls the component/service token out of a structured log line, e.g.
+//   "2026-..Z ERROR auth-svc pod/auth-svc-1 KMS decrypt failed" -> "auth-svc"
+//   "2026-..Z WARN  [payments-api] charge declined"             -> "payments-api"
+const LINE_SERVICE_RE = "(?:ERROR|WARN|WARNING|FATAL)\\s+\\[?([A-Za-z][A-Za-z0-9._-]*)\\]?"
+
+// Group recent error/warn lines into candidate clusters. Lines are grouped by
+// the real service (parsed from the line for generic collectors, otherwise the
+// chunk's metadata service) + environment, then thresholded on error count.
 async function findClusters(): Promise<Cluster[]> {
   const rows = (await sql`
-    with scored as (
+    with lines as (
       select
-        coalesce(service, 'unknown')     as service,
         coalesce(environment, 'unknown') as environment,
+        coalesce(service, 'unknown')     as meta_service,
         source,
         event_time,
-        content,
-        (select count(*) from regexp_split_to_table(content, E'\n') as l(t)
-           where t ~* ${ERROR_LINE_RE}) as err_lines,
-        (select count(*) from regexp_split_to_table(content, E'\n') as l(t)
-           where t ~* ${WARN_LINE_RE})  as warn_lines
+        btrim(line) as line
       from log_chunks
+      cross join lateral regexp_split_to_table(content, E'\n') as line
       where severity in ('error', 'warn')
         and created_at >= now() - ${RECENT_WINDOW}::interval
+    ),
+    classified as (
+      select
+        environment,
+        source,
+        event_time,
+        line,
+        case
+          when meta_service = any(${GENERIC_COLLECTORS})
+            then coalesce((regexp_match(line, ${LINE_SERVICE_RE}))[1], meta_service)
+          else meta_service
+        end as service,
+        (line ~* ${ERROR_LINE_RE}) as is_err,
+        (line ~* ${WARN_LINE_RE})  as is_warn
+      from lines
+      where line <> ''
     )
     select
       service,
       environment,
-      sum(err_lines)::int  as error_count,
-      sum(warn_lines)::int as warn_count,
+      count(*) filter (where is_err)::int  as error_count,
+      count(*) filter (where is_warn)::int as warn_count,
       min(event_time) as first_seen,
       max(event_time) as last_seen,
       array_agg(distinct source) as sources,
-      (array_agg(content order by event_time desc)
-        filter (where err_lines > 0))[1] as sample_log
-    from scored
+      (array_agg(line order by event_time desc) filter (where is_err))[1] as sample_log
+    from classified
+    where is_err or is_warn
     group by 1, 2
-    having sum(err_lines) >= ${MIN_ERRORS}
+    having count(*) filter (where is_err) >= ${MIN_ERRORS}
   `) as Array<{
     service: string
     environment: string

@@ -131,6 +131,18 @@ body > * {
   animation: dash-flow 1s linear infinite;
 }
 
+/* Fade/slide-in for demo step transitions */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Gentle floating for diagram accents */
 @keyframes float-y {
   0%,

@@ -371,8 +371,14 @@ function NavTabs() {
         Chat
       </Link>
       <Link
+        href="/demo"
+        className="hidden rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent sm:block"
+      >
+        Demo
+      </Link>
+      <Link
         href="/logs"
-        className="rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent"
+        className="hidden rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent sm:block"
       >
         Live logs
       </Link>

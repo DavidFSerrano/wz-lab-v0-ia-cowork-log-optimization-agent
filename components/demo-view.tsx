@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Markdown } from "./markdown"
 import { AppNav } from "./app-nav"

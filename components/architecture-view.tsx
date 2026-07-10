@@ -245,7 +245,7 @@ function StageCard({
 
 // Connector: animated flowing dashes. Horizontal on lg, vertical on mobile.
 function Flow({ children }: { children: ReactNode }) {
-  return <div className="flex flex-col items-stretch gap-3 lg:flex-row lg:items-center">{children}</div>
+  return <div className="flex flex-col items-stretch gap-3 lg:flex-row lg:items-stretch">{children}</div>
 }
 
 function FlowArrow({ accent = "accent" }: { accent?: Accent }) {

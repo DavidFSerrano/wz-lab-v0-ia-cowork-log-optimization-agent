@@ -374,7 +374,7 @@ export function ArchitectureView() {
               How it works
             </span>
             <h2 className="text-balance text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-              A retrieval-augmented pipeline for log troubleshooting
+              RAG-powered log optimization &amp; insights
             </h2>
             <p className="max-w-2xl text-pretty leading-relaxed text-muted">
               Raw logs from Kubernetes and AWS are chunked, embedded into vectors, and stored in Postgres. When you

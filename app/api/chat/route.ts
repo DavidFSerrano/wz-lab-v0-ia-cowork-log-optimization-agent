@@ -59,13 +59,47 @@ const searchLogsTool = tool({
   },
 })
 
+type IncidentContext = {
+  title?: string
+  service?: string | null
+  environment?: string | null
+  sources?: string[]
+  severity?: string
+  firstSeen?: string
+  lastSeen?: string
+}
+
 export async function POST(req: Request) {
-  const { messages }: { messages: UIMessage[] } = await req.json()
+  const {
+    messages,
+    incident,
+  }: { messages: UIMessage[]; incident?: IncidentContext } = await req.json()
+
+  // Additive: when the user is investigating a specific detected incident,
+  // give the model that scope so its searchLogs calls focus on the right
+  // service and time window. This does NOT change the searchLogs tool itself.
+  const incidentScope = incident
+    ? [
+        "ACTIVE INCIDENT CONTEXT — the user is investigating a specific auto-detected incident. Scope your investigation to it:",
+        incident.title ? `- Title: ${incident.title}` : "",
+        incident.service ? `- Service: ${incident.service} (prefer the service filter with this value in searchLogs)` : "",
+        incident.environment ? `- Environment: ${incident.environment}` : "",
+        incident.sources?.length ? `- Log sources involved: ${incident.sources.join(", ")}` : "",
+        incident.firstSeen ? `- First seen: ${incident.firstSeen}` : "",
+        incident.lastSeen ? `- Last seen: ${incident.lastSeen}` : "",
+        incident.firstSeen
+          ? `- When correlating what changed, use startTime a bit before ${incident.firstSeen} and endTime around ${incident.lastSeen ?? "now"}.`
+          : "",
+      ]
+        .filter(Boolean)
+        .join("\n")
+    : ""
 
   const result = streamText({
     model: "openai/gpt-5.1-instant",
     system: [
       "You are a senior SRE assistant embedded in a team's tooling. You help engineers troubleshoot Kubernetes and AWS infrastructure incidents.",
+      incidentScope,
       "All logs live in a vector database (Kubernetes pod logs and describe output, Kubernetes events, and AWS CloudTrail/KMS/RDS logs). Use the searchLogs tool to retrieve relevant log chunks via semantic search.",
       "When a user asks about troubleshooting, an incident, a crashing pod, errors, or anything explainable by the logs, ALWAYS call searchLogs to gather evidence before answering. Run MULTIPLE searches with different queries and sources — the root cause usually requires correlating evidence across several systems. Do not stop after a single search.",
       "Correlate by timestamp. Build a timeline across the Kubernetes and AWS results and look for the change or trigger that precedes the failures. Use the startTime/endTime filters to find what changed just before the incident. A recent deploy, an autoscaler event, or transient connection timeouts are often red herrings — actively confirm or rule each one out using evidence.",

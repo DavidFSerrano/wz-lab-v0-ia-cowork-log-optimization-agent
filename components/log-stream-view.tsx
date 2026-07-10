@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState, useCallback } from "react"
-import { AppNav } from "./app-nav"
+import { AppNav, AppBanner } from "./app-nav"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -189,6 +189,7 @@ export function LogStreamView() {
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans">
+      <AppBanner />
       {/* ── Header ── */}
       <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-surface/80 px-6 py-4 backdrop-blur-sm">
         <div className="flex items-center gap-3">

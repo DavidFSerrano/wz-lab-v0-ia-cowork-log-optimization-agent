@@ -1,7 +1,7 @@
 "use client"
 
 import type { ReactNode } from "react"
-import { AppNav } from "./app-nav"
+import { AppNav, AppBanner } from "./app-nav"
 
 /* ---------------------------------- Icons --------------------------------- */
 
@@ -364,6 +364,7 @@ function Chip({ children, accent = "accent" }: { children: ReactNode; accent?: A
 export function ArchitectureView() {
   return (
     <div className="flex h-dvh flex-col">
+      <AppBanner />
       <header className="flex items-center justify-between border-b border-accent/20 bg-surface/60 px-4 py-3 backdrop-blur-sm">
         <div className="flex items-center gap-2.5">
           <div className="glow-accent flex h-7 w-7 items-center justify-center rounded-lg border border-accent/60 bg-accent/10 font-mono text-xs font-bold text-accent" aria-hidden="true">

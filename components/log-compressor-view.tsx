@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useState } from "react"
-import { AppNav } from "./app-nav"
+import { AppNav, AppBanner } from "./app-nav"
 
 // ─── Sample log ───────────────────────────────────────────────────────────────
 
@@ -166,6 +166,7 @@ export function LogCompressorView() {
 
   return (
     <div className="flex h-dvh flex-col">
+      <AppBanner />
       {/* Header */}
       <header className="flex items-center justify-between border-b border-accent/20 bg-surface/60 px-4 py-3 backdrop-blur-sm">
         <div className="flex min-w-0 items-center gap-2.5">

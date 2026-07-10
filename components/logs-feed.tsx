@@ -2,7 +2,7 @@
 
 import useSWR from "swr"
 import { useEffect, useState } from "react"
-import { AppNav } from "./app-nav"
+import { AppNav, AppBanner } from "./app-nav"
 
 type LogRow = {
   id: number
@@ -90,6 +90,7 @@ export function LogsFeed() {
 
   return (
     <div className="flex h-dvh flex-col">
+      <AppBanner />
       <header className="flex items-center justify-between border-b border-accent/20 bg-surface/60 px-4 py-3 backdrop-blur-sm">
         <div className="flex items-center gap-2.5">
           <div

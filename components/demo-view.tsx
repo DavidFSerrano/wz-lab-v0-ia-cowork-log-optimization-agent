@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Markdown } from "./markdown"
-import { AppNav } from "./app-nav"
+import { AppNav, AppBanner } from "./app-nav"
 
 /* ------------------------------------------------------------------ *
  * Pre-existing logs (real content from /logs) that power this demo.
@@ -201,6 +201,7 @@ export function DemoView() {
 
   return (
     <div className="flex h-dvh flex-col">
+      <AppBanner />
       {/* Header */}
       <header className="flex items-center justify-between border-b border-accent/20 bg-surface/60 px-4 py-3 backdrop-blur-sm">
         <div className="flex min-w-0 items-center gap-2.5">

@@ -1,0 +1,16 @@
+2026-07-10T03:10:00.001Z INFO  [startup] checkout-api v3.1.0 starting, profile=prod token=sk_live_9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c
+2026-07-10T03:10:00.010Z INFO  [http] 10.0.0.5 "GET /healthz HTTP/1.1" 200 2ms kube-probe/1.29
+2026-07-10T03:10:02.010Z INFO  [http] 10.0.0.5 "GET /healthz HTTP/1.1" 200 1ms kube-probe/1.29
+2026-07-10T03:10:04.010Z INFO  [http] 10.0.0.5 "GET /healthz HTTP/1.1" 200 2ms kube-probe/1.29
+2026-07-10T03:10:06.010Z INFO  [http] 10.0.0.5 "GET /healthz HTTP/1.1" 200 1ms kube-probe/1.29
+2026-07-10T03:10:01.100Z ERROR [redis] connection refused to redis-master.cache.svc:6379
+2026-07-10T03:10:02.200Z ERROR [redis] connection refused to redis-master.cache.svc:6379
+2026-07-10T03:10:03.300Z ERROR [redis] connection refused to redis-master.cache.svc:6379
+2026-07-10T03:10:04.400Z ERROR [redis] connection refused to redis-master.cache.svc:6379
+2026-07-10T03:10:05.500Z ERROR [redis] connection refused to redis-master.cache.svc:6379
+2026-07-10T03:10:06.600Z ERROR [redis] connection refused to redis-master.cache.svc:6379
+2026-07-10T03:10:07.700Z ERROR [redis] connection refused to redis-master.cache.svc:6379
+2026-07-10T03:10:08.800Z ERROR [redis] connection refused to redis-master.cache.svc:6379
+2026-07-10T03:10:00.020Z INFO  [auth] user login ok email=jane.doe@example.com
+2026-07-10T03:10:09.900Z WARN  [cache] falling back to in-memory cache; Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0In0.abc123def456
+2026-07-10T03:10:10.000Z FATAL [main] cache subsystem unavailable, entering degraded mode

@@ -36,6 +36,14 @@ function IngestIcon({ className }: IconProps) {
     </svg>
   )
 }
+function OptimizeIcon({ className }: IconProps) {
+  return (
+    <svg {...iconBase} className={className}>
+      <path d="M3 6h18M6 12h12M9 18h6" />
+      <path d="m19 3 .9 1.9L22 6l-2.1.9L19 9l-.9-2.1L16 6l2.1-1.1z" />
+    </svg>
+  )
+}
 function ChunkIcon({ className }: IconProps) {
   return (
     <svg {...iconBase} className={className}>
@@ -349,6 +357,83 @@ function ChunkViz() {
   )
 }
 
+const OPT_BEFORE = [
+  { t: `10:02:03 GET /healthz 200 kube-probe/1.29`, kind: "noise" as const },
+  { t: `10:02:04 GET /healthz 200 kube-probe/1.29`, kind: "noise" as const },
+  { t: `10:02:11 ERROR [redis] connection refused redis-master:6379`, kind: "dupe" as const },
+  { t: `10:02:12 ERROR [redis] connection refused redis-master:6379`, kind: "dupe" as const },
+  { t: `10:02:13 ERROR [redis] connection refused redis-master:6379`, kind: "dupe" as const },
+  { t: `10:02:20 INFO login ok token=sk_live_9f8a21c… user=jane@corp.com`, kind: "secret" as const },
+  { t: `10:02:25 FATAL [main] cache subsystem unavailable`, kind: "keep" as const },
+]
+
+const OPT_AFTER = [
+  { t: `10:02:11 ERROR [redis] connection refused redis-master:6379  (×3)`, tone: "accent" as const },
+  { t: `10:02:20 INFO login ok token=[REDACTED] user=[email]`, tone: "secondary" as const },
+  { t: `10:02:25 FATAL [main] cache subsystem unavailable`, tone: "keep" as const },
+]
+
+const OPT_LEGEND: Record<string, { label: string; cls: string }> = {
+  noise: { label: "dropped", cls: "text-muted line-through opacity-50" },
+  dupe: { label: "collapsed", cls: "text-alert" },
+  secret: { label: "redacted", cls: "text-secondary" },
+  keep: { label: "kept", cls: "text-foreground" },
+}
+
+function OptimizeViz() {
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="grid gap-4 lg:grid-cols-2">
+        {/* Before */}
+        <div className="rounded-2xl border border-border bg-surface/70 p-5">
+          <p className="mb-3 font-mono text-xs uppercase tracking-wider text-muted">Raw · 7 lines</p>
+          <div className="flex flex-col gap-1.5">
+            {OPT_BEFORE.map((l, i) => (
+              <div
+                key={i}
+                className={`rounded border border-border/60 bg-background/50 px-2 py-1.5 font-mono text-[11px] leading-snug ${OPT_LEGEND[l.kind].cls}`}
+              >
+                {l.t}
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* After */}
+        <div className="rounded-2xl border border-accent/40 bg-accent/5 p-5">
+          <p className="mb-3 font-mono text-xs uppercase tracking-wider text-accent">Optimized · 3 lines</p>
+          <div className="flex flex-col gap-1.5">
+            {OPT_AFTER.map((l, i) => (
+              <div
+                key={i}
+                className={`rounded border px-2 py-1.5 font-mono text-[11px] leading-snug ${
+                  l.tone === "secondary"
+                    ? "border-secondary/30 bg-secondary/5 text-foreground"
+                    : l.tone === "keep"
+                      ? "border-border bg-background/50 text-foreground"
+                      : "border-accent/30 bg-accent/5 text-foreground"
+                }`}
+              >
+                {l.t}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <Chip>~70% fewer tokens</Chip>
+        <Chip accent="alert">duplicates collapsed (×N)</Chip>
+        <Chip accent="secondary">secrets &amp; PII redacted</Chip>
+        <Chip>health-probe noise dropped</Chip>
+      </div>
+      <p className="max-w-2xl text-pretty text-sm leading-relaxed text-muted">
+        Crucially, this is <span className="text-foreground">lossless for diagnosis</span>: timestamps, error
+        messages, and identifiers (ARNs, KMS key ids, request ids) are always preserved. On already-clean logs the
+        optimizer is a no-op.
+      </p>
+    </div>
+  )
+}
+
 function Chip({ children, accent = "accent" }: { children: ReactNode; accent?: Accent }) {
   const cls =
     accent === "secondary"
@@ -420,7 +505,7 @@ export function ArchitectureView() {
               RAG-powered log optimization &amp; insights
             </h2>
             <p className="max-w-2xl text-pretty leading-relaxed text-muted">
-              Raw logs from any source are chunked, embedded into vectors, and stored in Postgres. When you
+              Raw logs from any source are optimized, chunked, embedded into vectors, and stored in Postgres. When you
               ask a question, an SRE agent semantically searches that vector store, correlates evidence across
               systems, and produces a root-cause diagnosis. Two independent flows power the system: an{" "}
               <span className="text-accent">ingestion (write) path</span> and a{" "}
@@ -469,18 +554,35 @@ export function ArchitectureView() {
                 Auto-detects the payload shape and normalizes metadata (source, service, environment).
               </StageCard>
               <FlowArrow />
-              <StageCard index={3} icon={<ChunkIcon />} title="Chunk" code="chunkDocument()">
+              <StageCard index={3} icon={<OptimizeIcon />} title="Optimize" code="optimizeRaw()">
+                Collapses duplicate spam, strips noise, and redacts secrets{" "}
+                <span className="text-foreground">before</span> tokenizing — fewer tokens, same signal.
+              </StageCard>
+              <FlowArrow />
+              <StageCard index={4} icon={<ChunkIcon />} title="Chunk" code="chunkDocument()">
                 Splits logs into semantic chunks, tagging each with a timestamp and severity level.
               </StageCard>
               <FlowArrow />
-              <StageCard index={4} icon={<EmbedIcon />} title="Embed" code="text-embedding-3-small">
+              <StageCard index={5} icon={<EmbedIcon />} title="Embed" code="text-embedding-3-small">
                 Batches chunks through <span className="text-accent">embedMany</span> to produce 1536-dimensional vectors.
               </StageCard>
               <FlowArrow />
-              <StageCard index={5} icon={<DatabaseIcon />} title="Store" code="Neon · pgvector">
+              <StageCard index={6} icon={<DatabaseIcon />} title="Store" code="Neon · pgvector">
                 Persists chunk + vector + metadata into the <span className="font-mono">log_chunks</span> table.
               </StageCard>
             </Flow>
+          </Section>
+
+          {/* Optimize */}
+          <Section eyebrow="Zoom in · optimize" title="Log optimization">
+            <p className="max-w-2xl text-pretty leading-relaxed text-muted">
+              Raw logs are noisy and repetitive, and every token costs money and dilutes retrieval. So before anything
+              is tokenized, <span className="font-mono text-accent">optimizeRaw()</span> cleans each payload: it
+              collapses consecutive duplicates into a single <span className="font-mono">(×N)</span> line, drops
+              health-probe noise, normalizes whitespace, and redacts secrets and PII — while never touching the
+              diagnostic signal.
+            </p>
+            <OptimizeViz />
           </Section>
 
           {/* Chunking */}

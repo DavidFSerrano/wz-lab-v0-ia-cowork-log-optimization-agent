@@ -6,51 +6,55 @@ import {
   type UIMessage,
 } from "ai"
 import { z } from "zod"
-import { promises as fs } from "node:fs"
-import path from "node:path"
+import { searchLogs } from "@/lib/logs-pipeline"
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30
 
-const LOGS_DIR = path.join(process.cwd(), "logs")
-
-// Guard against path traversal — only allow reading files inside LOGS_DIR.
-function resolveLogPath(fileName: string) {
-  const resolved = path.join(LOGS_DIR, fileName)
-  if (resolved !== LOGS_DIR && !resolved.startsWith(LOGS_DIR + path.sep)) {
-    throw new Error("Invalid log file path")
-  }
-  return resolved
-}
-
-const listLogFiles = tool({
+const searchLogsTool = tool({
   description:
-    "List the log files available in the repository's logs folder. Use this first when the user asks about troubleshooting, incidents, pods, crashes, or errors so you know which logs exist.",
-  inputSchema: z.object({}),
-  execute: async () => {
-    try {
-      const entries = await fs.readdir(LOGS_DIR)
-      return { files: entries.filter((f) => !f.startsWith(".")) }
-    } catch {
-      return { files: [], note: "No logs directory found." }
-    }
-  },
-})
-
-const readLogFile = tool({
-  description:
-    "Read the full contents of a specific log file from the logs folder. Call this to inspect the actual log lines before diagnosing an issue. Always cite concrete evidence (error codes, exit codes, event reasons) from the file in your answer.",
+    "Semantic search over the ingested log vector store (Kubernetes pod logs, Kubernetes events, and AWS CloudTrail/KMS/RDS logs). Returns the most relevant log chunks with their source and timestamp. Call this to gather evidence before diagnosing. You can call it multiple times with different queries, sources, or time windows to correlate events across systems.",
   inputSchema: z.object({
-    fileName: z
+    query: z
       .string()
-      .describe("The exact file name to read, e.g. 'payment-service-describe.txt'. Get valid names from listLogFiles."),
+      .describe("Natural-language description of what you're looking for, e.g. 'why is the pod crashing' or 'KMS permission changes'."),
+    source: z
+      .enum(["k8s", "aws", "web"])
+      .optional()
+      .describe("Optionally restrict results to one source system."),
+    service: z.string().optional().describe("Optionally restrict to a service name, e.g. 'orders-api'."),
+    startTime: z
+      .string()
+      .optional()
+      .describe("Optional ISO-8601 lower bound on event time, e.g. '2024-05-12T02:00:00Z'. Useful to correlate what changed before failures."),
+    endTime: z.string().optional().describe("Optional ISO-8601 upper bound on event time."),
+    limit: z.number().int().min(1).max(20).optional().describe("Max chunks to return (default 8)."),
   }),
-  execute: async ({ fileName }) => {
+  execute: async (args) => {
     try {
-      const content = await fs.readFile(resolveLogPath(fileName), "utf8")
-      return { fileName, content }
-    } catch {
-      return { fileName, error: `Could not read '${fileName}'. Use listLogFiles to see valid names.` }
+      const results = await searchLogs(args)
+      return {
+        count: results.length,
+        results: results.map((r) => ({
+          source: r.source,
+          service: r.service,
+          severity: r.severity,
+          // Coerce Postgres Date to an ISO string — non-JSON values break the
+          // ModelMessage schema when the tool output is fed back to the model.
+          eventTime:
+            r.event_time instanceof Date
+              ? r.event_time.toISOString()
+              : r.event_time,
+          content: r.content,
+          relevance: Number((1 - r.distance).toFixed(3)),
+        })),
+      }
+    } catch (err) {
+      // Never throw from a tool — a tool-output-error corrupts the step
+      // history for reasoning models. Return the error as data instead.
+      const message = err instanceof Error ? err.message : String(err)
+      console.log("[v0] searchLogs error:", message)
+      return { count: 0, results: [], error: `Search failed: ${message}` }
     }
   },
 })
@@ -62,17 +66,23 @@ export async function POST(req: Request) {
     model: "openai/gpt-5.1-instant",
     system: [
       "You are a senior SRE assistant embedded in a team's tooling. You help engineers troubleshoot Kubernetes and AWS infrastructure incidents.",
-      "You have tools to inspect real log files stored in the repository's logs folder. These logs span multiple sources: Kubernetes pod logs and describe output, Kubernetes namespace events, and AWS logs (CloudTrail, KMS, RDS/CloudWatch).",
-      "When a user asks about troubleshooting, an incident, a crashing pod, errors, or anything that could be explained by the logs, ALWAYS call listLogFiles first, then read EVERY log file that could be relevant before answering. Do not stop after the first file — the root cause usually requires correlating evidence across several sources.",
-      "Correlate by timestamp. Build a timeline of events across the Kubernetes and AWS logs and look for the change or trigger that precedes the failures. A recent deploy, an autoscaler event, or transient connection timeouts are often red herrings — actively confirm or rule each one out using evidence.",
-      "Base your diagnosis strictly on what the logs actually show. Quote specific evidence (exit codes, error codes, event reasons, restart counts, CloudTrail event names, IAM/role ARNs, timestamps).",
+      "All logs live in a vector database (Kubernetes pod logs and describe output, Kubernetes events, and AWS CloudTrail/KMS/RDS logs). Use the searchLogs tool to retrieve relevant log chunks via semantic search.",
+      "When a user asks about troubleshooting, an incident, a crashing pod, errors, or anything explainable by the logs, ALWAYS call searchLogs to gather evidence before answering. Run MULTIPLE searches with different queries and sources — the root cause usually requires correlating evidence across several systems. Do not stop after a single search.",
+      "Correlate by timestamp. Build a timeline across the Kubernetes and AWS results and look for the change or trigger that precedes the failures. Use the startTime/endTime filters to find what changed just before the incident. A recent deploy, an autoscaler event, or transient connection timeouts are often red herrings — actively confirm or rule each one out using evidence.",
+      "Base your diagnosis strictly on what the retrieved logs actually show. Quote specific evidence (exit codes, error codes, event reasons, restart counts, CloudTrail event names, IAM/role ARNs, timestamps).",
       "Structure troubleshooting answers as: 1) Summary of the problem, 2) Timeline of correlated evidence across the log sources, 3) Red herrings you ruled out and why, 4) Root cause, 5) Concrete remediation steps (kubectl / AWS CLI commands where helpful) and a prevention suggestion.",
-      "If the logs do not contain relevant information, say so plainly instead of guessing. For general questions unrelated to the logs, answer normally and concisely.",
+      "If retrieval returns nothing relevant, say so plainly instead of guessing. For general questions unrelated to the logs, answer normally and concisely.",
     ].join(" "),
     messages: await convertToModelMessages(messages),
-    tools: { listLogFiles, readLogFile },
+    tools: { searchLogs: searchLogsTool },
     stopWhen: stepCountIs(10),
   })
 
-  return result.toUIMessageStreamResponse()
+  return result.toUIMessageStreamResponse({
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : String(error)
+      console.log("[v0] chat stream error:", message)
+      return message
+    },
+  })
 }

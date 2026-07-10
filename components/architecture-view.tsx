@@ -189,15 +189,17 @@ function StageCard({
       <span className="absolute -top-2.5 left-4 rounded-md border border-border bg-background px-1.5 font-mono text-[10px] font-semibold text-muted">
         {String(index).padStart(2, "0")}
       </span>
-      <div className="flex items-center gap-2.5">
+      <div className="flex flex-col gap-3">
         <div
           className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border bg-background/60 ${ACCENT_RING[accent]} ${ACCENT_GLOW[accent]}`}
         >
           {icon}
         </div>
         <div className="min-w-0">
-          <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-          {code ? <p className="truncate font-mono text-[11px] text-muted">{code}</p> : null}
+          <h3 className="text-sm font-semibold leading-tight text-foreground">{title}</h3>
+          {code ? (
+            <p className="mt-1 break-words font-mono text-[11px] leading-snug text-muted">{code}</p>
+          ) : null}
         </div>
       </div>
       <div className="mt-3 text-sm leading-relaxed text-muted">{children}</div>
@@ -462,11 +464,11 @@ export function ArchitectureView() {
               </StageCard>
               <FlowArrow />
               <StageCard index={3} icon={<ChunkIcon />} title="Chunk" code="chunkDocument()">
-                Splits logs into semantic chunks and tags each with a timestamp and severity.
+                Splits logs into semantic chunks, tagging each with a timestamp and severity level.
               </StageCard>
               <FlowArrow />
               <StageCard index={4} icon={<EmbedIcon />} title="Embed" code="text-embedding-3-small">
-                Batches chunks through <span className="text-accent">embedMany</span> into 1536-dim vectors.
+                Batches chunks through <span className="text-accent">embedMany</span> to produce 1536-dimensional vectors.
               </StageCard>
               <FlowArrow />
               <StageCard index={5} icon={<DatabaseIcon />} title="Store" code="Neon · pgvector">

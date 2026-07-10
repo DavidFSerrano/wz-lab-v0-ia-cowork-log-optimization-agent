@@ -75,14 +75,14 @@ function EvidenceTrail({ evidence }: { evidence: RetrievalEvidence }) {
   if (evidence.chunks === 0) return null
   return (
     <div className="mb-2 flex flex-wrap items-center gap-1.5">
-      <span className="inline-flex items-center gap-1 rounded-md border border-border bg-surface px-1.5 py-0.5 text-xs text-muted">
+      <span className="inline-flex items-center gap-1 rounded-md border border-accent/30 bg-accent/5 px-1.5 py-0.5 font-mono text-xs text-accent">
         <DatabaseIcon />
         Retrieved {evidence.chunks} log {evidence.chunks === 1 ? "chunk" : "chunks"} via RAG
       </span>
       {evidence.sources.map((s) => (
         <span
           key={s}
-          className="rounded-md border border-border bg-surface px-1.5 py-0.5 font-mono text-xs text-muted"
+          className="rounded-md border border-secondary/30 bg-secondary/5 px-1.5 py-0.5 font-mono text-xs text-secondary"
         >
           {SOURCE_LABELS[s] ?? s}
         </span>
@@ -100,7 +100,7 @@ export function ChatMessage({ message }: { message: UIMessage }) {
   if (isUser) {
     return (
       <div className="flex w-full justify-end">
-        <div className="max-w-[80%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-accent px-4 py-2.5 text-sm leading-relaxed text-accent-foreground">
+        <div className="glow-accent max-w-[80%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-accent px-4 py-2.5 text-sm leading-relaxed text-accent-foreground">
           {text}
         </div>
       </div>
@@ -111,13 +111,13 @@ export function ChatMessage({ message }: { message: UIMessage }) {
     <div className="flex w-full gap-3 justify-start">
       <div
         aria-hidden="true"
-        className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-semibold text-accent-foreground"
+        className="glow-secondary mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-secondary/60 bg-secondary/10 font-mono text-sm font-semibold text-secondary"
       >
         AI
       </div>
       <div className="min-w-0 max-w-[80%]">
         <EvidenceTrail evidence={evidence} />
-        <div className="rounded-2xl rounded-bl-md bg-surface-2 px-4 py-3 text-foreground">
+        <div className="rounded-2xl rounded-bl-md border border-border/60 bg-surface-2 px-4 py-3 text-foreground">
           {text ? (
             <Markdown content={text} />
           ) : activity ? (
@@ -139,11 +139,11 @@ export function TypingIndicator() {
     <div className="flex w-full items-center gap-3">
       <div
         aria-hidden="true"
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-semibold text-accent-foreground"
+        className="glow-secondary flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-secondary/60 bg-secondary/10 font-mono text-sm font-semibold text-secondary"
       >
         AI
       </div>
-      <div className="flex items-center gap-1 rounded-2xl rounded-bl-md bg-surface-2 px-4 py-3">
+      <div className="flex items-center gap-1 rounded-2xl rounded-bl-md border border-border/60 bg-surface-2 px-4 py-3">
         <span className="sr-only">Assistant is typing</span>
         <span className="h-2 w-2 animate-bounce rounded-full bg-muted [animation-delay:-0.3s]" />
         <span className="h-2 w-2 animate-bounce rounded-full bg-muted [animation-delay:-0.15s]" />

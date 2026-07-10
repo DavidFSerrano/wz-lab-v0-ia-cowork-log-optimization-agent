@@ -17,9 +17,9 @@ type LogRow = {
 const fetcher = (url: string) => fetch(url).then((r) => r.json() as Promise<{ logs: LogRow[] }>)
 
 const SEVERITY_STYLES: Record<string, string> = {
-  error: "border-alert/40 bg-alert/10 text-alert",
-  warn: "border-amber-500/30 bg-amber-500/10 text-amber-400",
-  info: "border-border bg-surface-2 text-muted",
+  error: "border-secondary/50 bg-secondary/10 text-secondary shadow-[0_0_8px_-2px_theme(colors.secondary)]",
+  warn: "border-alert/40 bg-alert/10 text-alert",
+  info: "border-accent/30 bg-accent/5 text-accent",
 }
 
 function severityClass(sev: string | null) {
@@ -43,7 +43,7 @@ function LogEntry({ row }: { row: LogRow }) {
   const preview = row.content.split("\n")[0].slice(0, 160)
 
   return (
-    <li className="rounded-xl border border-border bg-surface transition-colors hover:border-accent/50">
+    <li className="rounded-xl border border-border bg-surface/60 transition-all hover:border-accent/60 hover:shadow-[0_0_16px_-6px_theme(colors.accent)]">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -90,31 +90,33 @@ export function LogsFeed() {
 
   return (
     <div className="flex h-dvh flex-col">
-      <header className="flex items-center justify-between border-b border-border px-4 py-3">
+      <header className="flex items-center justify-between border-b border-accent/20 bg-surface/60 px-4 py-3 backdrop-blur-sm">
         <div className="flex items-center gap-2.5">
           <div
-            className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-xs font-bold text-accent-foreground"
+            className="glow-accent flex h-7 w-7 items-center justify-center rounded-lg border border-accent/60 bg-accent/10 font-mono text-xs font-bold text-accent"
             aria-hidden="true"
           >
             AI
           </div>
-          <h1 className="text-sm font-semibold tracking-tight">Live Log Ingestion</h1>
+          <h1 className="text-glow-accent font-mono text-sm font-semibold uppercase tracking-[0.2em] text-accent">
+            Live<span className="text-secondary text-glow-secondary">//</span>Ingest
+          </h1>
         </div>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setLive((v) => !v)}
-            className="flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted transition-colors hover:text-foreground"
+            className="flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:text-foreground"
           >
             <span
-              className={`h-1.5 w-1.5 rounded-full ${live ? "animate-pulse bg-accent" : "bg-muted"}`}
+              className={`h-1.5 w-1.5 rounded-full ${live ? "animate-pulse bg-accent shadow-[0_0_6px_theme(colors.accent)]" : "bg-muted"}`}
               aria-hidden="true"
             />
             {live ? "Live" : "Paused"}
           </button>
           <Link
             href="/"
-            className="rounded-lg border border-border px-3 py-1 text-xs font-medium text-foreground transition-colors hover:border-accent"
+            className="rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent"
           >
             Chat
           </Link>

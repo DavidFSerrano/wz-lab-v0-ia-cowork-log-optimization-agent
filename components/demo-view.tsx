@@ -283,7 +283,7 @@ export function DemoView() {
 
       {/* Stage */}
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto w-full max-w-3xl px-4 py-6">
+        <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col justify-center px-4 py-6">
           <div key={`${runKey}-${step}`} className="animate-[fadeIn_.4s_ease]">
             <p className="font-mono text-xs uppercase tracking-[0.3em] text-secondary">{STEPS[step].eyebrow}</p>
             <h2 className="mt-1 text-balance text-xl font-bold tracking-tight text-foreground sm:text-2xl">

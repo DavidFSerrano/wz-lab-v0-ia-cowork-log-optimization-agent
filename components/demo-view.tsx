@@ -1,8 +1,8 @@
 "use client"
 
-import Link from "next/link"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Markdown } from "./markdown"
+import { AppNav } from "./app-nav"
 
 /* ------------------------------------------------------------------ *
  * Pre-existing logs (real content from /logs) that power this demo.
@@ -211,20 +211,7 @@ export function DemoView() {
             Demo<span className="text-secondary text-glow-secondary">//</span>Playback
           </h1>
         </div>
-        <div className="flex items-center gap-2">
-          <Link href="/" className="rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent">
-            Chat
-          </Link>
-          <Link href="/compress" className="rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent">
-            Compressor
-          </Link>
-          <Link href="/stream" className="rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent">
-            Stream
-          </Link>
-          <Link href="/architecture" className="rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent">
-            Architecture
-          </Link>
-        </div>
+        <AppNav />
       </header>
 
       {/* Controls + stepper */}

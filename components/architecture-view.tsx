@@ -1,7 +1,7 @@
 "use client"
 
-import Link from "next/link"
 import type { ReactNode } from "react"
+import { AppNav } from "./app-nav"
 
 /* ---------------------------------- Icons --------------------------------- */
 
@@ -359,39 +359,6 @@ function Chip({ children, accent = "accent" }: { children: ReactNode; accent?: A
   return <span className={`rounded-md border px-2.5 py-1 font-mono text-xs ${cls}`}>{children}</span>
 }
 
-/* --------------------------------- Header -------------------------------- */
-
-function NavTabs() {
-  return (
-    <nav className="flex items-center gap-1.5" aria-label="Primary">
-      <Link
-        href="/"
-        className="rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent"
-      >
-        Chat
-      </Link>
-      <Link
-        href="/demo"
-        className="hidden rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent sm:block"
-      >
-        Demo
-      </Link>
-      <Link
-        href="/logs"
-        className="hidden rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent sm:block"
-      >
-        Live logs
-      </Link>
-      <span
-        aria-current="page"
-        className="rounded-lg border border-accent/60 bg-accent/10 px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-accent"
-      >
-        Architecture
-      </span>
-    </nav>
-  )
-}
-
 /* ---------------------------------- View --------------------------------- */
 
 export function ArchitectureView() {
@@ -406,7 +373,7 @@ export function ArchitectureView() {
             RAG<span className="text-secondary text-glow-secondary">//</span>Architecture
           </h1>
         </div>
-        <NavTabs />
+        <AppNav />
       </header>
 
       <div className="flex-1 overflow-y-auto">

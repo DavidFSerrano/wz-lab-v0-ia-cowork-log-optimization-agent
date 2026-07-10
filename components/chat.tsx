@@ -3,9 +3,9 @@
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
 import { useEffect, useRef, useState } from "react"
-import Link from "next/link"
 import { ChatMessage, TypingIndicator } from "./chat-message"
 import { IncidentDashboard, type Incident } from "./incident-dashboard"
+import { AppNav } from "./app-nav"
 
 function suggestionsFor(inc: Incident): string[] {
   const svc = inc.service ?? "the service"
@@ -127,30 +127,7 @@ export function Chat() {
             </span>
           ) : (
             <>
-              <span
-                aria-current="page"
-                className="rounded-lg border border-accent/60 bg-accent/10 px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-accent"
-              >
-                Chat
-              </span>
-              <Link
-                href="/demo"
-                className="rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent"
-              >
-                Demo
-              </Link>
-              <Link
-                href="/logs"
-                className="hidden rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent sm:block"
-              >
-                Live logs
-              </Link>
-              <Link
-                href="/architecture"
-                className="hidden rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent sm:block"
-              >
-                Architecture
-              </Link>
+              <AppNav />
             </>
           )}
         </div>

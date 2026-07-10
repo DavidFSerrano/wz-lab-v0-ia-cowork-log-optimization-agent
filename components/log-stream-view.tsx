@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState, useCallback } from "react"
+import { AppNav } from "./app-nav"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -257,6 +258,11 @@ export function LogStreamView() {
           </button>
         </div>
       </header>
+
+      {/* ── Nav bar ── */}
+      <div className="border-b border-border bg-surface/60 px-6 py-2">
+        <AppNav />
+      </div>
 
       <main className="flex flex-1 flex-col gap-4 p-6">
         {/* ── Metrics bar ── */}

@@ -1,0 +1,26 @@
+# Source: kubectl logs orders-api-7c9f8b6d5f-nqx2p -n orders --previous
+# Container: orders-api (image v2.8.4)
+# This is the crashed (previous) instance from the latest restart.
+
+2026-07-10T02:40:31.104Z INFO  [startup] orders-api v2.8.4 (commit 8f3ac21) starting
+2026-07-10T02:40:31.109Z INFO  [startup] JVM args OK, profile=prod, region=us-east-1
+2026-07-10T02:40:31.402Z INFO  [startup] HTTP server bound on :8080, metrics on :9090
+2026-07-10T02:40:31.501Z INFO  [startup] loaded feature flags (14 enabled)
+2026-07-10T02:40:31.640Z INFO  [config] resolving IRSA credentials via web identity token
+2026-07-10T02:40:31.712Z INFO  [config] assumed role arn:aws:iam::480129847221:role/orders-api-irsa (sts:AssumeRoleWithWebIdentity ok)
+2026-07-10T02:40:31.998Z INFO  [secrets] fetching DB credentials from Secrets Manager: prod/orders/db-credentials
+2026-07-10T02:40:32.377Z WARN  [db]   pool warm-up: attempt 1 to orders-db.cluster-cxy7.us-east-1.rds.amazonaws.com:5432 timed out after 2000ms
+2026-07-10T02:40:34.412Z WARN  [db]   pool warm-up: attempt 2 to orders-db.cluster-cxy7.us-east-1.rds.amazonaws.com:5432 timed out after 2000ms
+2026-07-10T02:40:38.902Z ERROR [secrets] failed to decrypt secret value: software.amazon.awssdk.services.kms.model.KmsException:
+    User: arn:aws:sts::480129847221:assumed-role/orders-api-irsa/orders-api-7c9f8b6d5f-nqx2p is not authorized to perform:
+    kms:Decrypt on resource: arn:aws:kms:us-east-1:480129847221:key/4a1e9c33-7b2d-4f6e-9c1a-2d8f5b6e7a90
+    because no identity-based policy allows the kms:Decrypt action
+    (Service: Kms, Status Code: 400, Request ID: 6b1f2e9a-3c4d-45e6-8f7a-9b0c1d2e3f4a)
+    ErrorCode: AccessDeniedException
+2026-07-10T02:40:38.905Z ERROR [secrets] could not resolve DB credentials; secret payload is KMS-encrypted and decrypt was denied
+2026-07-10T02:40:38.907Z ERROR [startup] fatal: datasource initialization failed (no usable DB credentials)
+2026-07-10T02:40:39.001Z ERROR [startup] shutting down after fatal startup error
+2026-07-10T02:40:39.010Z INFO  [startup] exit code 1
+
+# --- Older instances (02:14 - 02:38) show the identical KMS AccessDeniedException. ---
+# --- Note: instances started BEFORE 02:14 had already-cached credentials and ran fine on image v2.8.4. ---

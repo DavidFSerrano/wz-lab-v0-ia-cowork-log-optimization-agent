@@ -1,0 +1,21 @@
+# Source: aws rds describe-events + CloudWatch metric summary for cluster orders-db (Aurora PostgreSQL)
+# Window: 2026-07-10 01:45Z - 02:45Z
+
+## RDS Events (describe-events, SourceType=db-cluster / db-instance)
+01:50:03Z  db-cluster   orders-db          Backup completed successfully (automated snapshot)
+# No events in the incident window. No failover, no reboot, no parameter-group change, no maintenance.
+
+## CloudWatch metrics (1-min avg) for orders-db-instance-1 (writer)
+Time      CPUUtilization  DatabaseConnections  FreeableMemory  Aurora_Replica_Lag  DiskQueueDepth
+01:50Z    22%             184                  6.1 GB          18 ms               0.4
+02:00Z    24%             191                  6.0 GB          20 ms               0.5
+02:10Z    23%             188                  6.1 GB          19 ms               0.4
+02:14Z    21%             142                  6.2 GB          19 ms               0.3
+02:20Z    18%             back-fill  <- connection count DROPPED as orders-api pods stopped connecting
+02:30Z    16%             77                   6.3 GB          17 ms               0.2
+02:40Z    15%             41                   6.3 GB          18 ms               0.2
+
+# Interpretation aid: Aurora is HEALTHY throughout. CPU, memory, and replica lag are all nominal.
+# DatabaseConnections DECLINE during the incident (fewer app instances connecting) rather than spike.
+# There is NO database-side outage. The "connection timeout" lines in the pod log occur during
+# pool warm-up and are transient; the fatal error is the KMS decrypt denial, not the DB.

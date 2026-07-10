@@ -6,9 +6,26 @@ function textFromMessage(message: UIMessage): string {
     .join("")
 }
 
+const TOOL_LABELS: Record<string, string> = {
+  "tool-listLogFiles": "Listing available logs…",
+  "tool-readLogFile": "Reading log file…",
+}
+
+function toolActivity(message: UIMessage): string | null {
+  const active = message.parts.find(
+    (part) =>
+      part.type.startsWith("tool-") &&
+      "state" in part &&
+      part.state !== "output-available" &&
+      part.state !== "output-error",
+  )
+  return active ? TOOL_LABELS[active.type] ?? "Inspecting logs…" : null
+}
+
 export function ChatMessage({ message }: { message: UIMessage }) {
   const isUser = message.role === "user"
   const text = textFromMessage(message)
+  const activity = toolActivity(message)
 
   return (
     <div className={`flex w-full gap-3 ${isUser ? "justify-end" : "justify-start"}`}>
@@ -27,7 +44,16 @@ export function ChatMessage({ message }: { message: UIMessage }) {
             : "rounded-bl-md bg-surface-2 text-foreground"
         }`}
       >
-        {text || <span className="text-muted">…</span>}
+        {text ? (
+          text
+        ) : activity ? (
+          <span className="flex items-center gap-2 text-muted">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-accent" />
+            {activity}
+          </span>
+        ) : (
+          <span className="text-muted">…</span>
+        )}
       </div>
     </div>
   )

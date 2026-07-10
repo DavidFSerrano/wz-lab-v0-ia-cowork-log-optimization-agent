@@ -1,26 +1,78 @@
 import {
   convertToModelMessages,
-  createUIMessageStreamResponse,
   streamText,
-  toUIMessageStream,
+  stepCountIs,
+  tool,
   type UIMessage,
 } from "ai"
+import { z } from "zod"
+import { promises as fs } from "node:fs"
+import path from "node:path"
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30
+
+const LOGS_DIR = path.join(process.cwd(), "logs")
+
+// Guard against path traversal — only allow reading files inside LOGS_DIR.
+function resolveLogPath(fileName: string) {
+  const resolved = path.join(LOGS_DIR, fileName)
+  if (resolved !== LOGS_DIR && !resolved.startsWith(LOGS_DIR + path.sep)) {
+    throw new Error("Invalid log file path")
+  }
+  return resolved
+}
+
+const listLogFiles = tool({
+  description:
+    "List the log files available in the repository's logs folder. Use this first when the user asks about troubleshooting, incidents, pods, crashes, or errors so you know which logs exist.",
+  inputSchema: z.object({}),
+  execute: async () => {
+    try {
+      const entries = await fs.readdir(LOGS_DIR)
+      return { files: entries.filter((f) => !f.startsWith(".")) }
+    } catch {
+      return { files: [], note: "No logs directory found." }
+    }
+  },
+})
+
+const readLogFile = tool({
+  description:
+    "Read the full contents of a specific log file from the logs folder. Call this to inspect the actual log lines before diagnosing an issue. Always cite concrete evidence (error codes, exit codes, event reasons) from the file in your answer.",
+  inputSchema: z.object({
+    fileName: z
+      .string()
+      .describe("The exact file name to read, e.g. 'payment-service-describe.txt'. Get valid names from listLogFiles."),
+  }),
+  execute: async ({ fileName }) => {
+    try {
+      const content = await fs.readFile(resolveLogPath(fileName), "utf8")
+      return { fileName, content }
+    } catch {
+      return { fileName, error: `Could not read '${fileName}'. Use listLogFiles to see valid names.` }
+    }
+  },
+})
 
 export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json()
 
   const result = streamText({
     model: "openai/gpt-5.1-instant",
-    system:
-      "You are a helpful, concise assistant. Format answers with Markdown-style " +
-      "structure when useful, but keep responses clear and to the point.",
+    system: [
+      "You are a senior SRE assistant embedded in a team's tooling. You help engineers troubleshoot Kubernetes and AWS infrastructure incidents.",
+      "You have tools to inspect real log files stored in the repository's logs folder. These logs span multiple sources: Kubernetes pod logs and describe output, Kubernetes namespace events, and AWS logs (CloudTrail, KMS, RDS/CloudWatch).",
+      "When a user asks about troubleshooting, an incident, a crashing pod, errors, or anything that could be explained by the logs, ALWAYS call listLogFiles first, then read EVERY log file that could be relevant before answering. Do not stop after the first file — the root cause usually requires correlating evidence across several sources.",
+      "Correlate by timestamp. Build a timeline of events across the Kubernetes and AWS logs and look for the change or trigger that precedes the failures. A recent deploy, an autoscaler event, or transient connection timeouts are often red herrings — actively confirm or rule each one out using evidence.",
+      "Base your diagnosis strictly on what the logs actually show. Quote specific evidence (exit codes, error codes, event reasons, restart counts, CloudTrail event names, IAM/role ARNs, timestamps).",
+      "Structure troubleshooting answers as: 1) Summary of the problem, 2) Timeline of correlated evidence across the log sources, 3) Red herrings you ruled out and why, 4) Root cause, 5) Concrete remediation steps (kubectl / AWS CLI commands where helpful) and a prevention suggestion.",
+      "If the logs do not contain relevant information, say so plainly instead of guessing. For general questions unrelated to the logs, answer normally and concisely.",
+    ].join(" "),
     messages: await convertToModelMessages(messages),
+    tools: { listLogFiles, readLogFile },
+    stopWhen: stepCountIs(10),
   })
 
-  return createUIMessageStreamResponse({
-    stream: toUIMessageStream({ stream: result.stream }),
-  })
+  return result.toUIMessageStreamResponse()
 }

@@ -1,4 +1,4 @@
-// Replace the random embeddings written by scripts/seed-dummy.sql so searchLogs
+// Replace the random embeddings written by DummyData.sql so searchLogs
 // returns chunks related to the query. Only touches rows in log_chunks; safe to re-run.
 //
 //   AI_DEMO_MODE=true -> local hashed embeddings (lib/demo-embeddings.ts), no key needed.

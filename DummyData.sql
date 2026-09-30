@@ -12,7 +12,7 @@
 -- AI_DEMO_MODE=true, real ones otherwise) or search results are meaningless.
 --
 -- Run:
---   docker exec -i coworklog-pgvector psql -U admin -d coworklog < scripts/seed-dummy.sql
+--   docker exec -i coworklog-pgvector psql -U admin -d coworklog < DummyData.sql
 --   node --experimental-strip-types --env-file=.env.local scripts/embed-dummy.mjs
 
 BEGIN;

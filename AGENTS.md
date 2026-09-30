@@ -125,7 +125,7 @@ local models — no pipeline file is edited:
 
 Embeddings from demo mode and real mode are NOT comparable: after switching
 modes, re-embed (`scripts/embed-dummy.mjs`) or re-ingest.
-Dummy data: `scripts/seed-dummy.sql` then `scripts/embed-dummy.mjs`.
+Dummy data: `Tables.sql` (schema) → `DummyData.sql` → `scripts/embed-dummy.mjs` (see README.md).
 
 ## File map
 
@@ -142,7 +142,7 @@ Dummy data: `scripts/seed-dummy.sql` then `scripts/embed-dummy.mjs`.
 | `components/chat*.tsx`, `markdown.tsx`, `logs-feed.tsx` | UI |
 | `scripts/setup-schema.mjs` | Creates `vector` ext, `log_chunks` table + indexes |
 | `scripts/seed-logs.mjs` | Truncates table, POSTs `logs/*` files to `/api/ingest` |
-| `scripts/seed-dummy.sql`, `scripts/embed-dummy.mjs` | Dummy rows via SQL + (re)compute their embeddings |
+| `Tables.sql`, `DummyData.sql`, `scripts/embed-dummy.mjs` | Local schema, dummy rows, and (re)compute their embeddings |
 | `logs/` | Sample raw log files for seeding |
 
 ## DB schema (`log_chunks`)

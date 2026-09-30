@@ -3,6 +3,7 @@
 import useSWR from "swr"
 import { useEffect, useState } from "react"
 import { AppNav } from "./app-nav"
+import { BrandTitle } from "./brand-title"
 
 type LogRow = {
   id: number
@@ -90,23 +91,15 @@ export function LogsFeed() {
 
   return (
     <div className="flex h-dvh flex-col">
-      <header className="flex items-center justify-between border-b border-accent/20 bg-surface/60 px-4 py-3 backdrop-blur-sm">
+      <header className="flex items-center justify-between border-b border-border bg-surface/90 px-4 py-3 backdrop-blur-sm">
         <div className="flex items-center gap-2.5">
-          <div
-            className="glow-accent flex h-7 w-7 items-center justify-center rounded-lg border border-accent/60 bg-accent/10 font-mono text-xs font-bold text-accent"
-            aria-hidden="true"
-          >
-            AI
-          </div>
-          <h1 className="text-glow-accent font-mono text-sm font-semibold uppercase tracking-[0.2em] text-accent">
-            Live<span className="text-secondary text-glow-secondary">//</span>Ingest
-          </h1>
+          <BrandTitle title="Live Ingest" />
         </div>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setLive((v) => !v)}
-            className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent"
+            className="flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1 text-xs font-semibold text-muted transition-colors hover:border-accent hover:text-accent"
           >
             <span
               className={`h-1.5 w-1.5 rounded-full ${live ? "animate-pulse bg-accent shadow-[0_0_6px_theme(colors.accent)]" : "bg-muted"}`}

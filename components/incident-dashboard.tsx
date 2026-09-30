@@ -106,7 +106,7 @@ export function IncidentDashboard({ onSelect }: { onSelect: (incident: Incident)
     <div className="flex flex-col gap-4 py-8">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-mono text-sm font-semibold uppercase tracking-[0.2em] text-accent text-glow-accent">
+          <h2 className="text-sm font-semibold uppercase text-accent text-glow-accent tracking-[0.14em]">
             Active Incidents
           </h2>
           <p className="mt-1 text-xs text-muted">

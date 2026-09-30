@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react"
 import { ChatMessage, TypingIndicator } from "./chat-message"
 import { IncidentDashboard, type Incident } from "./incident-dashboard"
 import { AppNav } from "./app-nav"
+import { BrandTitle } from "./brand-title"
 
 function suggestionsFor(inc: Incident): string[] {
   const svc = inc.service ?? "the service"
@@ -98,25 +99,20 @@ export function Chat() {
   return (
     <div className="flex h-dvh flex-col">
       {/* Header */}
-      <header className="flex items-center justify-between border-b border-accent/20 bg-surface/60 px-4 py-3 backdrop-blur-sm">
+      <header className="flex items-center justify-between border-b border-border bg-surface/90 px-4 py-3 backdrop-blur-sm">
         <div className="flex min-w-0 items-center gap-2.5">
           {incident ? (
             <button
               type="button"
               onClick={backToDashboard}
-              className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent"
+              className="flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1 text-xs font-semibold text-muted transition-colors hover:border-accent hover:text-accent"
             >
               <BackIcon />
               Incidents
             </button>
           ) : (
             <>
-              <div className="glow-accent flex h-7 w-7 items-center justify-center rounded-lg border border-accent/60 bg-accent/10 font-mono text-xs font-bold text-accent" aria-hidden="true">
-                AI
-              </div>
-              <h1 className="text-glow-accent font-mono text-sm font-semibold uppercase tracking-[0.2em] text-accent">
-                Logs<span className="text-secondary text-glow-secondary">//</span>Insights
-              </h1>
+              <BrandTitle title="Logs Insights" />
             </>
           )}
         </div>
@@ -237,7 +233,7 @@ export function Chat() {
               <button
                 type="submit"
                 disabled={!input.trim()}
-                className="glow-accent shrink-0 rounded-xl bg-accent px-4 py-2 font-mono text-sm font-semibold uppercase tracking-wider text-accent-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
+                className="glow-accent shrink-0 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-brand-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
               >
                 Send
               </button>

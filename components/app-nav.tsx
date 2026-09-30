@@ -16,14 +16,14 @@ export function AppNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="flex flex-wrap items-center gap-1.5" aria-label="Primary navigation">
+    <nav className="flex flex-wrap items-center gap-1" aria-label="Primary navigation">
       {NAV_LINKS.map(({ href, label }) => {
         const isActive = pathname === href
         return isActive ? (
           <span
             key={href}
             aria-current="page"
-            className="rounded-lg border border-accent/60 bg-accent/10 px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-accent"
+            className="rounded-full bg-foreground px-3.5 py-1.5 text-xs font-semibold text-background"
           >
             {label}
           </span>
@@ -31,7 +31,7 @@ export function AppNav() {
           <Link
             key={href}
             href={href}
-            className="rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent"
+            className="rounded-full px-3.5 py-1.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-surface-2 hover:text-foreground"
           >
             {label}
           </Link>

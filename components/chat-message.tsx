@@ -100,7 +100,7 @@ export function ChatMessage({ message }: { message: UIMessage }) {
   if (isUser) {
     return (
       <div className="flex w-full justify-end">
-        <div className="glow-accent max-w-[80%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-accent px-4 py-2.5 text-sm leading-relaxed text-accent-foreground">
+        <div className="glow-accent max-w-[80%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-brand-soft px-4 py-2.5 text-sm leading-relaxed text-foreground">
           {text}
         </div>
       </div>

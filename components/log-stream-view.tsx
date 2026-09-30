@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react"
 import { AppNav } from "./app-nav"
+import { BrandTitle } from "./brand-title"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -190,18 +191,10 @@ export function LogStreamView() {
   return (
     <div className="flex h-dvh flex-col">
       {/* ── Header ── */}
-      <header className="flex items-center justify-between border-b border-accent/20 bg-surface/60 px-4 py-3 backdrop-blur-sm">
+      <header className="flex items-center justify-between border-b border-border bg-surface/90 px-4 py-3 backdrop-blur-sm">
         {/* Left: logo + title + live badge */}
         <div className="flex items-center gap-2.5">
-          <div
-            className="glow-accent flex h-7 w-7 items-center justify-center rounded-lg border border-accent/60 bg-accent/10 font-mono text-xs font-bold text-accent"
-            aria-hidden="true"
-          >
-            EK
-          </div>
-          <h1 className="text-glow-accent font-mono text-sm font-semibold uppercase tracking-[0.2em] text-accent">
-            EKS<span className="text-secondary text-glow-secondary">//</span>Stream
-          </h1>
+          <BrandTitle title="EKS Stream" />
           <span
             className={`rounded border px-2 py-0.5 font-mono text-xs font-medium uppercase tracking-widest ${running ? "border-accent/40 bg-accent/10 text-accent" : "border-border text-muted"}`}
           >
@@ -246,7 +239,7 @@ export function LogStreamView() {
           {/* Start / Stop */}
           <button
             onClick={toggle}
-            className={`rounded-lg border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider transition-all ${
+            className={`rounded-full border px-3.5 py-1 text-xs font-semibold transition-all ${
               running
                 ? "border-secondary/50 bg-secondary/10 text-secondary hover:bg-secondary/20 glow-secondary"
                 : "border-accent/50 bg-accent/10 text-accent hover:bg-accent/20 glow-accent"
@@ -258,7 +251,7 @@ export function LogStreamView() {
           {/* Clear */}
           <button
             onClick={clearLogs}
-            className="rounded-lg border border-border px-3 py-1 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent"
+            className="rounded-full border border-border px-3.5 py-1 text-xs font-semibold text-muted transition-colors hover:border-accent hover:text-accent"
           >
             Clear
           </button>

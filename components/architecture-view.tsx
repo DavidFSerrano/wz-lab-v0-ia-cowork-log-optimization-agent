@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react"
 import { AppNav } from "./app-nav"
+import { BrandTitle } from "./brand-title"
 
 /* ---------------------------------- Icons --------------------------------- */
 
@@ -149,7 +150,7 @@ function Section({
   return (
     <section className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <span className="font-mono text-xs uppercase tracking-[0.3em] text-accent text-glow-accent">{eyebrow}</span>
+        <span className="text-xs uppercase text-accent text-glow-accent tracking-[0.14em] font-semibold">{eyebrow}</span>
         <h2 className="text-pretty text-xl font-semibold tracking-tight text-foreground sm:text-2xl">{title}</h2>
       </div>
       {children}
@@ -249,7 +250,8 @@ function Flow({ children }: { children: ReactNode }) {
 }
 
 function FlowArrow({ accent = "accent" }: { accent?: Accent }) {
-  const stroke = accent === "secondary" ? "#ff2e97" : accent === "alert" ? "#ffb300" : "#00e5ff"
+  // Mirrors the secondary / alert / accent theme tokens in app/globals.css.
+  const stroke = accent === "secondary" ? "#c2410c" : accent === "alert" ? "#a35a00" : "#0a7372"
   return (
     <div className="flex shrink-0 items-center justify-center self-center text-muted" aria-hidden="true">
       {/* vertical (mobile) */}
@@ -288,8 +290,8 @@ function VectorViz() {
         </div>
         <div className="text-accent" aria-hidden="true">
           <svg width="34" height="18" viewBox="0 0 34 18">
-            <line x1="0" y1="9" x2="26" y2="9" stroke="#00e5ff" className="animate-dash-flow" />
-            <path d="M24 3l8 6-8 6" fill="none" stroke="#00e5ff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+            <line x1="0" y1="9" x2="26" y2="9" stroke="#0a7372" className="animate-dash-flow" />
+            <path d="M24 3l8 6-8 6" fill="none" stroke="#0a7372" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
         <div className="flex h-16 flex-1 items-end gap-[3px]" aria-hidden="true">
@@ -477,14 +479,9 @@ function Chip({ children, accent = "accent" }: { children: ReactNode; accent?: A
 export function ArchitectureView() {
   return (
     <div className="flex h-dvh flex-col">
-      <header className="flex items-center justify-between border-b border-accent/20 bg-surface/60 px-4 py-3 backdrop-blur-sm">
+      <header className="flex items-center justify-between border-b border-border bg-surface/90 px-4 py-3 backdrop-blur-sm">
         <div className="flex items-center gap-2.5">
-          <div className="glow-accent flex h-7 w-7 items-center justify-center rounded-lg border border-accent/60 bg-accent/10 font-mono text-xs font-bold text-accent" aria-hidden="true">
-            AI
-          </div>
-          <h1 className="text-glow-accent font-mono text-sm font-semibold uppercase tracking-[0.2em] text-accent">
-            RAG<span className="text-secondary text-glow-secondary">//</span>Architecture
-          </h1>
+          <BrandTitle title="RAG Architecture" />
         </div>
         <AppNav />
       </header>
@@ -493,7 +490,7 @@ export function ArchitectureView() {
           <div className="mx-auto flex w-full max-w-5xl flex-col gap-20 px-4 py-10 sm:px-6 sm:py-14">
           {/* Intro */}
           <div className="flex flex-col gap-4">
-            <span className="font-mono text-xs uppercase tracking-[0.3em] text-secondary text-glow-secondary">
+            <span className="text-xs uppercase text-secondary text-glow-secondary tracking-[0.14em] font-semibold">
               How it works
             </span>
             <h2 className="text-balance text-2xl font-bold tracking-tight text-foreground sm:text-3xl">

@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Markdown } from "./markdown"
 import { AppNav } from "./app-nav"
+import { BrandTitle } from "./brand-title"
 
 /* ------------------------------------------------------------------ *
  * Pre-existing logs (real content from /logs) that power this demo.
@@ -204,14 +205,9 @@ export function DemoView() {
   return (
     <div className="flex h-dvh flex-col">
       {/* Header */}
-      <header className="flex items-center justify-between border-b border-accent/20 bg-surface/60 px-4 py-3 backdrop-blur-sm">
+      <header className="flex items-center justify-between border-b border-border bg-surface/90 px-4 py-3 backdrop-blur-sm">
         <div className="flex min-w-0 items-center gap-2.5">
-          <div className="glow-accent flex h-7 w-7 items-center justify-center rounded-lg border border-accent/60 bg-accent/10 font-mono text-xs font-bold text-accent" aria-hidden="true">
-            AI
-          </div>
-          <h1 className="text-glow-accent font-mono text-sm font-semibold uppercase tracking-[0.2em] text-accent">
-            Demo<span className="text-secondary text-glow-secondary">//</span>Playback
-          </h1>
+          <BrandTitle title="Demo Playback" />
         </div>
         <AppNav />
       </header>
@@ -223,7 +219,7 @@ export function DemoView() {
             <button
               type="button"
               onClick={() => (isLast ? restart() : setPlaying((p) => !p))}
-              className="glow-accent flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 font-mono text-xs font-semibold uppercase tracking-wider text-accent-foreground transition-opacity hover:opacity-90"
+              className="glow-accent flex items-center gap-1.5 rounded-full bg-brand px-3 py-1.5 text-xs font-semibold text-brand-foreground transition-opacity hover:opacity-90"
             >
               {isLast ? <RestartIcon /> : playing ? <PauseIcon /> : <PlayIcon />}
               {isLast ? "Replay" : playing ? "Pause" : "Play"}
@@ -231,7 +227,7 @@ export function DemoView() {
             <button
               type="button"
               onClick={restart}
-              className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 font-mono text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent hover:text-accent"
+              className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted transition-colors hover:border-accent hover:text-accent"
             >
               <RestartIcon />
               Restart
@@ -280,7 +276,7 @@ export function DemoView() {
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto flex min-h-full w-full max-w-5xl flex-col justify-center px-4 py-6">
           <div key={`${runKey}-${step}`} className="animate-[fadeIn_.4s_ease]">
-            <p className="font-mono text-xs uppercase tracking-[0.3em] text-secondary">{STEPS[step].eyebrow}</p>
+            <p className="text-xs uppercase text-secondary tracking-[0.14em] font-semibold">{STEPS[step].eyebrow}</p>
             <h2 className="mt-1 text-balance text-xl font-bold tracking-tight text-foreground sm:text-2xl">
               {STEPS[step].title}
             </h2>
@@ -585,7 +581,7 @@ function InvestigateStep() {
     <div className="flex flex-col gap-4">
       {/* User question */}
       <div className="flex justify-end">
-        <div className="glow-accent max-w-[80%] rounded-2xl rounded-br-md bg-accent px-4 py-2.5 text-sm text-accent-foreground">
+        <div className="glow-accent max-w-[80%] rounded-2xl rounded-br-md bg-brand-soft px-4 py-2.5 text-sm text-foreground">
           What&apos;s the root cause of the orders-api CrashLoopBackOff — and what can we rule out?
         </div>
       </div>
@@ -650,7 +646,7 @@ function InvestigateStep() {
               <p className="text-sm text-foreground">Want to try it on the real data?</p>
               <Link
                 href="/"
-                className="glow-accent ml-auto rounded-lg bg-accent px-3 py-1.5 font-mono text-xs font-semibold uppercase tracking-wider text-accent-foreground transition-opacity hover:opacity-90"
+                className="glow-accent ml-auto rounded-full bg-brand px-3 py-1.5 text-xs font-semibold text-brand-foreground transition-opacity hover:opacity-90"
               >
                 Open the live chat
               </Link>

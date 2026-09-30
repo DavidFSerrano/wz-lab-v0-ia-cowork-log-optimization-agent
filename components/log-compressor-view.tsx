@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react"
 import { AppNav } from "./app-nav"
+import { BrandTitle } from "./brand-title"
 
 // ─── Sample log ───────────────────────────────────────────────────────────────
 
@@ -167,17 +168,9 @@ export function LogCompressorView() {
   return (
     <div className="flex h-dvh flex-col">
       {/* Header */}
-      <header className="flex items-center justify-between border-b border-accent/20 bg-surface/60 px-4 py-3 backdrop-blur-sm">
+      <header className="flex items-center justify-between border-b border-border bg-surface/90 px-4 py-3 backdrop-blur-sm">
         <div className="flex min-w-0 items-center gap-2.5">
-          <div
-            className="glow-accent flex h-7 w-7 items-center justify-center rounded-lg border border-accent/60 bg-accent/10 font-mono text-xs font-bold text-accent"
-            aria-hidden="true"
-          >
-            CZ
-          </div>
-          <h1 className="text-glow-accent font-mono text-sm font-semibold uppercase tracking-[0.2em] text-accent">
-            Log<span className="text-secondary text-glow-secondary">//</span>Compressor
-          </h1>
+          <BrandTitle title="Log Compressor" />
         </div>
         <AppNav />
       </header>
@@ -187,7 +180,7 @@ export function LogCompressorView() {
         <div className="mx-auto w-full max-w-5xl px-4 py-6">
           {/* Page intro */}
           <div className="mb-6">
-            <p className="font-mono text-xs uppercase tracking-[0.3em] text-secondary">Pre-processing</p>
+            <p className="text-xs uppercase text-secondary tracking-[0.14em] font-semibold">Pre-processing</p>
             <h2 className="mt-1 text-balance text-xl font-bold tracking-tight text-foreground sm:text-2xl">
               EKS Log Compressor
             </h2>
@@ -214,7 +207,7 @@ export function LogCompressorView() {
                   <button
                     type="button"
                     onClick={() => { setInput(""); setResult(null); setError(null) }}
-                    className="flex items-center gap-1 rounded-md border border-border px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-muted transition-colors hover:border-secondary hover:text-secondary"
+                    className="flex items-center gap-1 rounded-full border border-border px-2 py-1 text-[10px] text-muted transition-colors hover:border-secondary hover:text-secondary"
                   >
                     <ClearIcon />
                     Clear
@@ -241,7 +234,7 @@ export function LogCompressorView() {
                   <button
                     type="button"
                     onClick={handleCopy}
-                    className={`flex items-center gap-1 rounded-md border px-2 py-1 font-mono text-[10px] uppercase tracking-wider transition-colors ${
+                    className={`flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors ${
                       copied
                         ? "border-accent/60 text-accent"
                         : "border-border text-muted hover:border-accent hover:text-accent"
@@ -299,7 +292,7 @@ export function LogCompressorView() {
               type="button"
               onClick={handleCompress}
               disabled={loading || !input.trim()}
-              className="glow-accent flex items-center gap-2 rounded-lg bg-accent px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-accent-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+              className="glow-accent flex items-center gap-2 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-brand-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <CompressIcon />
               {loading ? "Compressing…" : "Compress"}
@@ -338,7 +331,7 @@ export function LogCompressorView() {
 
           {/* How it works */}
           <section className="mt-8 rounded-2xl border border-border bg-surface/40 p-5" aria-label="How compression works">
-            <h3 className="font-mono text-xs uppercase tracking-[0.2em] text-accent">How it works</h3>
+            <h3 className="text-xs uppercase text-accent tracking-[0.14em] font-semibold">How it works</h3>
             <ol className="mt-3 flex flex-col gap-2">
               {[
                 ["Parse", "Each line is parsed as plain text or JSON (Fluent Bit / CloudWatch format). Timestamps, log levels, and component names are extracted."],

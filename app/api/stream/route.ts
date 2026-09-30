@@ -1,12 +1,12 @@
 // GET /api/stream
 //
-// Server-Sent Events endpoint. Polls Neon every 2 s for log_chunks inserted
+// Server-Sent Events endpoint. Polls Postgres every 2 s for log_chunks inserted
 // after the connection was opened and streams them to the browser.
 // Each SSE event carries the chunk as JSON.
 //
 // Clients use the native EventSource API to subscribe.
 
-import { sql } from "@/lib/db"
+import { pool } from "@/lib/db"
 import type { RetrievedChunk } from "@/lib/db"
 
 export const dynamic = "force-dynamic"
@@ -22,9 +22,9 @@ export async function GET() {
 
   // Seed lastId so we only stream chunks ingested after connection opens.
   try {
-    const rows = (await sql`
-      select coalesce(max(id), 0) as max_id from log_chunks
-    `) as { max_id: number }[]
+    const { rows } = await pool.query<{ max_id: number }>(
+      "select coalesce(max(id), 0) as max_id from log_chunks",
+    )
     lastId = rows[0]?.max_id ?? 0
   } catch {
     // If DB is unavailable, start from 0 — we'll emit whatever is there.
@@ -43,16 +43,19 @@ export async function GET() {
 
       const poll = async () => {
         try {
-          const rows = (await sql`
+          const { rows } = await pool.query<RetrievedChunk>(
+            `
             select
               id, source, service, environment, severity,
               event_time, content,
               0 as distance
             from log_chunks
-            where id > ${lastId}
+            where id > $1
             order by id asc
-            limit ${BATCH_LIMIT}
-          `) as RetrievedChunk[]
+            limit $2
+            `,
+            [lastId, BATCH_LIMIT],
+          )
 
           if (rows.length > 0) {
             lastId = rows[rows.length - 1].id

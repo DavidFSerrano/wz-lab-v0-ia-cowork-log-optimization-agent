@@ -3,40 +3,52 @@
 // from `log_chunks` and writes here. Safe to run multiple times.
 //
 // Run: node --env-file-if-exists=/vercel/share/.env.project scripts/setup-incidents.mjs
+// One-time setup: create the incidents table.
+// Uses the local PostgreSQL database via pg.
 
-import { neon } from "@neondatabase/serverless"
+import pg from "pg"
 
-const sql = neon(process.env.DATABASE_URL)
+const { Pool } = pg
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+})
 
 async function main() {
-  await sql`
-    create table if not exists incidents (
-      id            bigint generated always as identity primary key,
-      signature     text unique not null,
-      service       text,
-      environment   text,
-      sources       text[] not null default '{}',
-      severity      text not null default 'warn',
-      status        text not null default 'open',
-      title         text not null,
-      summary       text,
-      error_count   integer not null default 0,
-      warn_count    integer not null default 0,
-      sample_log    text,
-      first_seen    timestamptz not null default now(),
-      last_seen     timestamptz not null default now(),
-      created_at    timestamptz not null default now(),
-      updated_at    timestamptz not null default now()
-    )
-  `
-  await sql`
-    create index if not exists incidents_status_last_seen_idx
-      on incidents (status, last_seen desc)
-  `
-  console.log("[setup-incidents] incidents table ready")
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS incidents (
+        id            bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        signature     text UNIQUE NOT NULL,
+        service       text,
+        environment   text,
+        sources       text[] NOT NULL DEFAULT '{}',
+        severity      text NOT NULL DEFAULT 'warn',
+        status        text NOT NULL DEFAULT 'open',
+        title         text NOT NULL,
+        summary       text,
+        error_count   integer NOT NULL DEFAULT 0,
+        warn_count    integer NOT NULL DEFAULT 0,
+        sample_log    text,
+        first_seen    timestamptz NOT NULL DEFAULT now(),
+        last_seen     timestamptz NOT NULL DEFAULT now(),
+        created_at    timestamptz NOT NULL DEFAULT now(),
+        updated_at    timestamptz NOT NULL DEFAULT now()
+      )
+    `)
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS incidents_status_last_seen_idx
+      ON incidents (status, last_seen DESC)
+    `)
+
+    console.log("[setup-incidents] incidents table ready")
+  } finally {
+    await pool.end()
+  }
 }
 
 main().catch((err) => {
   console.error("[setup-incidents] failed:", err)
-  process.exit(1)
+  process.exitCode = 1
 })

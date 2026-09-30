@@ -1,5 +1,5 @@
 import { embedMany, embed } from "ai"
-import { sql, type RetrievedChunk } from "./db"
+import { pool, type RetrievedChunk } from "./db"
 
 export const EMBEDDING_MODEL = "openai/text-embedding-3-small"
 
@@ -110,19 +110,22 @@ export async function ingestDocument(doc: LogDocument) {
 
   for (let i = 0; i < chunks.length; i++) {
     const c = chunks[i]
-    await sql`
+    await pool.query(
+      `
       insert into log_chunks
         (source, service, environment, severity, event_time, content, embedding)
-      values (
-        ${doc.source},
-        ${doc.service ?? null},
-        ${doc.environment ?? null},
-        ${c.severity},
-        ${c.eventTime},
-        ${c.content},
-        ${toVector(embeddings[i])}::vector
-      )
-    `
+      values ($1, $2, $3, $4, $5, $6, $7::vector)
+      `,
+      [
+        doc.source,
+        doc.service ?? null,
+        doc.environment ?? null,
+        c.severity,
+        c.eventTime,
+        c.content,
+        toVector(embeddings[i]),
+      ],
+    )
   }
 
   return { chunks: chunks.length }
@@ -133,18 +136,21 @@ export async function recentLogs(opts: { limit?: number; afterId?: number } = {}
   const limit = Math.min(opts.limit ?? 50, 200)
   const afterId = opts.afterId ?? null
 
-  const rows = (await sql`
+  const { rows } = await pool.query(
+    `
     select
       id, source, service, environment, severity,
       event_time, content,
       0 as distance
     from log_chunks
-    where (${afterId}::bigint is null or id > ${afterId}::bigint)
+    where ($1::bigint is null or id > $1::bigint)
     order by id desc
-    limit ${limit}
-  `) as RetrievedChunk[]
+    limit $2
+    `,
+    [afterId, limit],
+  )
 
-  return rows
+  return rows as RetrievedChunk[]
 }
 
 // Hybrid retrieval: optional metadata/time filters + vector similarity.
@@ -163,20 +169,23 @@ export async function searchLogs(opts: {
   const vec = toVector(embedding)
   const limit = Math.min(opts.limit ?? 8, 20)
 
-  const rows = (await sql`
+  const { rows } = await pool.query(
+    `
     select
       id, source, service, environment, severity,
       event_time, content,
-      (embedding <=> ${vec}::vector) as distance
+      (embedding <=> $1::vector) as distance
     from log_chunks
     where
-      (${opts.source ?? null}::text is null or source = ${opts.source ?? null})
-      and (${opts.service ?? null}::text is null or service = ${opts.service ?? null})
-      and (${opts.startTime ?? null}::timestamptz is null or event_time >= ${opts.startTime ?? null}::timestamptz)
-      and (${opts.endTime ?? null}::timestamptz is null or event_time <= ${opts.endTime ?? null}::timestamptz)
-    order by embedding <=> ${vec}::vector
-    limit ${limit}
-  `) as RetrievedChunk[]
+      ($2::text is null or source = $2::text)
+      and ($3::text is null or service = $3::text)
+      and ($4::timestamptz is null or event_time >= $4::timestamptz)
+      and ($5::timestamptz is null or event_time <= $5::timestamptz)
+    order by embedding <=> $1::vector
+    limit $6
+    `,
+    [vec, opts.source ?? null, opts.service ?? null, opts.startTime ?? null, opts.endTime ?? null, limit],
+  )
 
-  return rows
+  return rows as RetrievedChunk[]
 }

@@ -12,7 +12,7 @@ This includes ingestion, chunking, embedding, vector storage, retrieval, and the
 `searchLogs` tool. Concretely, treat these as **read-only**:
 
 - `lib/logs-pipeline.ts` (chunk / embed / ingest / searchLogs / recentLogs)
-- `lib/db.ts` (Neon client + `RetrievedChunk` type)
+- `lib/db.ts` (`pg` Pool + `RetrievedChunk` type)
 - `app/api/ingest/route.ts` (ingestion endpoint + payload parsing)
 - The `searchLogs` tool definition and retrieval logic in `app/api/chat/route.ts`
 - The `log_chunks` schema and `scripts/setup-schema.mjs`
@@ -29,7 +29,7 @@ An **AI log-analysis / incident-troubleshooting assistant** for SRE/DevOps.
 It is a **RAG (Retrieval-Augmented Generation) chat** over infrastructure logs:
 
 - Logs (Kubernetes pod logs & events, AWS CloudTrail/KMS/RDS) are ingested,
-  chunked, embedded, and stored as vectors in **Neon Postgres (pgvector)**.
+  chunked, embedded, and stored as vectors in **Postgres (pgvector)**.
 - A chat agent answers troubleshooting questions by semantically searching those
   logs and correlating evidence into a root-cause diagnosis.
 
@@ -40,7 +40,8 @@ The demo scenario is an `orders-api` `CrashLoopBackOff` incident.
 - **Next.js 16** (App Router) + **React 19**, TypeScript
 - **AI SDK v7** (`ai`) with **Vercel AI Gateway** — models are plain strings, no
   provider SDKs/keys needed
-- **Neon Postgres + pgvector** for the vector store
+- **Postgres + pgvector** for the vector store, accessed via `pg` (node-postgres)
+  `Pool` — works with local Postgres or Neon via `DATABASE_URL`
 - **Tailwind v4** (config-less; theme in `app/globals.css`)
 - **SWR** for the live-feed polling UI
 
@@ -50,7 +51,7 @@ Models: chat = `openai/gpt-5.1-instant`; embeddings =
 ## Architecture: two flows
 
 ### Flow 1 — Ingestion (logs in)
-`POST /api/ingest`  →  `lib/logs-pipeline.ts: ingestDocument()`  →  Neon
+`POST /api/ingest`  →  `lib/logs-pipeline.ts: ingestDocument()`  →  Postgres
 
 1. `app/api/ingest/route.ts` — wide-open (no auth) endpoint. `parseDocuments()`
    auto-detects the payload: raw text, NDJSON, arbitrary JSON (e.g. CloudTrail
@@ -64,7 +65,7 @@ Models: chat = `openai/gpt-5.1-instant`; embeddings =
    `log_chunks` with the embedding as a `::vector` literal.
 
 ### Flow 2 — Retrieval + chat (questions out)
-`components/chat.tsx` → `POST /api/chat` → `searchLogs` tool → Neon → streamed answer
+`components/chat.tsx` → `POST /api/chat` → `searchLogs` tool → Postgres → streamed answer
 
 1. `app/api/chat/route.ts` — `streamText` with a senior-SRE system prompt and one
    tool, `searchLogs`. `stopWhen: stepCountIs(10)` lets it run multiple searches.
@@ -109,12 +110,30 @@ Note: `error_count` counts error *chunks*, not log lines. Text logs pack into
 Setup: `node --env-file-if-exists=/vercel/share/.env.project scripts/setup-incidents.mjs`
 (creates the `incidents` table; safe to re-run).
 
+### Demo mode (no AI Gateway key) — `AI_DEMO_MODE=true`
+`instrumentation.ts` → `lib/demo-ai.ts: installDemoProvider()` sets
+`globalThis.AI_SDK_DEFAULT_PROVIDER`, so the SAME model id strings resolve to
+local models — no pipeline file is edited:
+
+- `openai/text-embedding-3-small` → `lib/demo-embeddings.ts` (feature-hashed
+  bag-of-words, 1536 dims, L2-normalised). Lexical, not semantic, similarity.
+- `openai/gpt-5.1-instant` → rule-based model: step 1 emits several real
+  `searchLogs` tool calls (scoped by the incident service), step 2 composes the
+  5-section diagnosis from the retrieved chunks with regex rules (KMS, IAM, OOM,
+  image pull, DB, throttling, CrashLoopBackOff). ES/EN by question language.
+  `generateObject` calls (incident titles) get a JSON title/summary.
+
+Embeddings from demo mode and real mode are NOT comparable: after switching
+modes, re-embed (`scripts/embed-dummy.mjs`) or re-ingest.
+Dummy data: `scripts/seed-dummy.sql` then `scripts/embed-dummy.mjs`.
+
 ## File map
 
 | Path | Role |
 |------|------|
-| `lib/db.ts` | Neon `sql` client + `RetrievedChunk` type |
+| `lib/db.ts` | `pg` `Pool` (singleton) + `RetrievedChunk` type |
 | `lib/logs-pipeline.ts` | **Core.** chunk / embed / ingest / searchLogs / recentLogs |
+| `lib/demo-ai.ts`, `lib/demo-embeddings.ts`, `instrumentation.ts` | Offline demo mode (`AI_DEMO_MODE=true`) |
 | `app/api/ingest/route.ts` | Flexible ingestion endpoint |
 | `app/api/chat/route.ts` | RAG chat + `searchLogs` tool |
 | `app/api/logs/route.ts` | Live-feed read API |
@@ -123,6 +142,7 @@ Setup: `node --env-file-if-exists=/vercel/share/.env.project scripts/setup-incid
 | `components/chat*.tsx`, `markdown.tsx`, `logs-feed.tsx` | UI |
 | `scripts/setup-schema.mjs` | Creates `vector` ext, `log_chunks` table + indexes |
 | `scripts/seed-logs.mjs` | Truncates table, POSTs `logs/*` files to `/api/ingest` |
+| `scripts/seed-dummy.sql`, `scripts/embed-dummy.mjs` | Dummy rows via SQL + (re)compute their embeddings |
 | `logs/` | Sample raw log files for seeding |
 
 ## DB schema (`log_chunks`)
@@ -133,7 +153,7 @@ Indexes: HNSW on `embedding` (cosine), btree on `(service, environment, event_ti
 
 ## Setup / run
 
-Requires `DATABASE_URL` (Neon) in the environment; AI Gateway works zero-config in v0.
+Requires `DATABASE_URL` (Postgres with pgvector) in the environment; AI Gateway works zero-config in v0.
 
 ```bash
 npm install
@@ -151,7 +171,7 @@ Bash outside the dev server, env vars are **not** auto-loaded — use
 
 - **Embedding dim is locked at 1536.** Changing the embedding model means
   changing the `vector(1536)` column and re-embedding everything.
-- **Neon returns `event_time` as a JS `Date` at runtime** though `RetrievedChunk`
+- **`pg` returns `event_time` as a JS `Date` at runtime** though `RetrievedChunk`
   types it as `string`. `app/api/chat/route.ts` casts via `unknown` and coerces
   to ISO — non-JSON values break the ModelMessage schema fed back to the model.
   Keep that coercion.
@@ -161,6 +181,9 @@ Bash outside the dev server, env vars are **not** auto-loaded — use
 - **Client components** using `window` (e.g. the curl snippet origin in
   `logs-feed.tsx`) must read it in `useEffect`, not during render, to avoid
   hydration mismatches.
+- **DB access uses `pool.query(text, params)`** with `$1…$n` placeholders — no
+  tagged-template `sql` client. `lib/db.ts` registers an INT8 parser so bigint
+  ids / counts come back as JS numbers (pg's default is strings).
 - The schema has `occurrences/first_seen/last_seen` columns for future
   dedup/aggregation; the current pipeline does **not** populate them.
 
